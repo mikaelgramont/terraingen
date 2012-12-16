@@ -8,11 +8,11 @@
     <div class="settings clearfix">
       <label class="settings-item">
         <span class="label-item">Height</span>
-        <input id="height" value="1.5" class="value-item">
+        <input id="height" value="1.5" class="value-item" type="range" min="0.5" max="5" step="0.1">
       </label>
       <label class="settings-item">
         <span class="label-item">Exit angle</span>
-        <input id="angle" value="45">
+        <input id="angle" value="45" type="range" min="10" max="89.9" step="0.1">
       </label>
       <div class="settings-item">
         <span class="label-item">Radius</span>
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <canvas id="canvas" class="draw-area" />
+    <canvas id="canvas" class="draw-area" width="800" height="600" />
     
     <script src="jquery-1.8.3.js"></script>
     <script src="script.js"></script>
