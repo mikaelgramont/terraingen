@@ -1,0 +1,31 @@
+.clearfix:after {
+   content: " "; /* Older browser do not support empty content */
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+}
+
+
+
+.settings {
+  width: 800px;
+  margin: 10px 0;
+}
+
+.settings-item {
+  width: 25%;
+  float: left;
+}
+
+.label-item,
+.value-item {
+  display: block;
+}
+
+.draw-area {
+  width: 798px;
+  height: 498px;
+  border: 1px solid black;
+}
+

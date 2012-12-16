@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Kicker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <div class="settings clearfix">
+      <label class="settings-item">
+        <span class="label-item">Height</span>
+        <input id="height" value="1.5" class="value-item">
+      </label>
+      <label class="settings-item">
+        <span class="label-item">Exit angle</span>
+        <input id="angle" value="45">
+      </label>
+      <div class="settings-item">
+        <span class="label-item">Radius</span>
+        <span id="radius"></span>
+      </div>
+      <div class="settings-item">
+        <span class="label-item">Base length</span>
+        <span id="length"></span>
+      </div>
+    </div>
+
+    <canvas id="canvas" class="draw-area" />
+    
+    <script src="jquery-1.8.3.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
