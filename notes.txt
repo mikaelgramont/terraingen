@@ -1,0 +1,7 @@
+objects:
+- profile
+- kicker model
+
+- app (contains many kickers)
+- kicker (contains a profile, a renderer)
+- renderer (canvas/webgl, contains a target element)
