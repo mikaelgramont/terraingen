@@ -1,11 +1,14 @@
-var KickerModel = function(height, angle) {
-	this.height = parseFloat(height)
+var KickerModel = function(height, width, angle) {
+	this.height = parseFloat(height);
+	this.width = parseFloat(width);
 	this.angle = parseFloat(angle);
 	this.radius = this.calculateRadius(this.height, this.angle);
 	this.length = this.calculateLength(this.height, this.angle);
 };
 
 KickerModel.prototype.height = null;
+
+KickerModel.prototype.width = null;
 
 KickerModel.prototype.angle = null;
 
@@ -25,7 +28,6 @@ KickerModel.prototype.calculateLength = function(h, alphaDeg) {
   return l;    
 }
 
-
 KickerModel.prototype.createProfile = function() {
   console.log('creating a profile');
   var points = [];
@@ -37,15 +39,28 @@ KickerModel.prototype.createProfile = function() {
   var currentAngleRad, x, y;
   var scaledRadius = this.radius * scale;
 
-  for (var i = 0; i < steps; i++) {
+  // This here is for canvas... y+ is down.
+  // for (var i = 0; i < steps; i++) {
+  //   currentAngleRad = i / steps * angleRad;
+  //   x = scaledRadius * Math.sin(currentAngleRad);
+  //   y = canvasHeight - scaledRadius * (1 - Math.cos(currentAngleRad));
+  //   points.push([x,y]);
+  // }
+  // points.push([x + 20, y]); 
+  // points.push([x + 20, canvasHeight]); 
+  // points.push([0, canvasHeight]); 
+
+  // This here is for WebGL... y+ is up.
+  for (var i = 0; i <= steps; i++) {
     currentAngleRad = i / steps * angleRad;
-    x = scaledRadius * Math.sin(currentAngleRad);
-    y = canvasHeight - scaledRadius * (1 - Math.cos(currentAngleRad));
+    x = this.radius * Math.sin(currentAngleRad);
+    y = this.radius * (1 - Math.cos(currentAngleRad));
     points.push([x,y]);
   }
-  points.push([x + 20, y]); 
-  points.push([x + 20, canvasHeight]); 
-  points.push([0, canvasHeight]); 
+  points.push([x + .2, y]); 
+  points.push([x + .2, 0]); 
 
-  return new Profile(points);
+
+
+  return new Profile(points, this.width);
 };

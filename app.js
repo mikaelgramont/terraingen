@@ -4,7 +4,6 @@ var App = function() {
 // The renderer object (canvas or webgl)
 App.prototype.renderer = null;
 
-// The renderer object (canvas or webgl)
 App.prototype.kickers = [];
 
 App.prototype.addKicker = function(kicker) {
