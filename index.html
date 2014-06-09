@@ -38,10 +38,9 @@
     <script>
       (function() {
         var app = new App();
+        var rendering = 'webgl';
 
-        var renderer = new Renderer(
-          document.getElementById('canvas'),
-          'webgl');
+        var renderer = new Renderer(document.getElementById('canvas'), rendering);
 
         var kickerModel = new KickerModel(
           document.getElementById('height').value,
@@ -49,7 +48,7 @@
           document.getElementById('angle').value
         );
 
-        var profile = kickerModel.createProfile();
+        var profile = kickerModel.createProfile(rendering);
 
         var kicker = new Kicker(profile, renderer);
         

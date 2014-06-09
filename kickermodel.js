@@ -28,8 +28,17 @@ KickerModel.prototype.calculateLength = function(h, alphaDeg) {
   return l;    
 }
 
-KickerModel.prototype.createProfile = function() {
-  console.log('creating a profile');
+KickerModel.prototype.createProfile = function(rendering) {
+	console.log('creating a profile');
+	if (rendering == 'canvas') {
+		return this.createCanvasProfile_();
+	} else if (rendering == 'webgl') {
+		return this.createWebGLProfile_();
+	}
+};
+
+KickerModel.prototype.createCanvasProfile_ = function() {
+  console.log('creating a canvas profile');
   var points = [];
 
   var canvasHeight = 600;
@@ -39,18 +48,27 @@ KickerModel.prototype.createProfile = function() {
   var currentAngleRad, x, y;
   var scaledRadius = this.radius * scale;
 
-  // This here is for canvas... y+ is down.
-  // for (var i = 0; i < steps; i++) {
-  //   currentAngleRad = i / steps * angleRad;
-  //   x = scaledRadius * Math.sin(currentAngleRad);
-  //   y = canvasHeight - scaledRadius * (1 - Math.cos(currentAngleRad));
-  //   points.push([x,y]);
-  // }
-  // points.push([x + 20, y]); 
-  // points.push([x + 20, canvasHeight]); 
-  // points.push([0, canvasHeight]); 
+  for (var i = 0; i < steps; i++) {
+    currentAngleRad = i / steps * angleRad;
+    x = scaledRadius * Math.sin(currentAngleRad);
+    y = canvasHeight - scaledRadius * (1 - Math.cos(currentAngleRad));
+    points.push([x,y]);
+  }
+  points.push([x + 20, y]); 
+  points.push([x + 20, canvasHeight]); 
+  points.push([0, canvasHeight]); 
 
-  // This here is for WebGL... y+ is up.
+  return new Profile(points, this.width);
+};
+
+KickerModel.prototype.createWebGLProfile_ = function() {
+  console.log('creating a WebGL profile');
+  var points = [];
+
+  var angleRad = this.angle * Math.PI / 180;
+  var steps = 20;
+  var currentAngleRad, x, y;
+
   for (var i = 0; i <= steps; i++) {
     currentAngleRad = i / steps * angleRad;
     x = this.radius * Math.sin(currentAngleRad);
@@ -59,8 +77,6 @@ KickerModel.prototype.createProfile = function() {
   }
   points.push([x + .2, y]); 
   points.push([x + .2, 0]); 
-
-
 
   return new Profile(points, this.width);
 };

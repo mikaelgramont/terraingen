@@ -80,7 +80,7 @@ WebGLRenderer.prototype.render = function(profile) {
 
 WebGLRenderer.prototype.init = function() {
 	var aspectRatio = this.canvasEl.clientWidth / this.canvasEl.clientHeight;
-	this.camera = new THREE.PerspectiveCamera(70, aspectRatio, 1, 1000);
+	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 1000);
 	this.camera.position.x = 0;
 	this.camera.position.y = 0;
 	this.camera.position.z = 350;
@@ -105,7 +105,9 @@ WebGLRenderer.prototype.init = function() {
 		this.buildGeometry(),
 		basicMaterial
 	);
-	window.mesh = this.mesh;
+	this.mesh.rotation.y = Math.PI / 4;
+
+	// window.mesh = this.mesh;
 	this.scene.add(this.mesh);
 };
 
@@ -113,29 +115,31 @@ WebGLRenderer.prototype.buildGeometry = function() {
 	var rectShape = new THREE.Shape();
 	var points = this.profile.getPoints();
 
-    var scale = 50;
+    var scale = 60;
 	rectShape.moveTo(points[0][0] * scale, points[0][1] * scale);
 	for (var i = 1, l = points.length; i < l; i++) {
 		rectShape.lineTo(points[i][0] * scale, points[i][1] * scale);
 	}
-    var out = rectShape.extractPoints();
-    console.log('points', out);
-
-	// rectShape.moveTo( 0,0 );
-	// rectShape.lineTo( 0, 100 );
-	// rectShape.lineTo( 50, 100 );
-	// rectShape.lineTo( 50, 0 );
-	// rectShape.lineTo( 0, 0 );
 	var extrudeSettings = {
 		amount: 2 * scale,
 		bevelSize: 0,
 		bevelSegments: 1,
 		bevelThickness: 0
-	}; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5
+	};
 	var geometry = new THREE.ExtrudeGeometry(rectShape, extrudeSettings);
-	//THREEx.GeometryUtils.center(geometry);
-  
- 	// var geometry = new THREE.CubeGeometry(100, 100, 100);
+
+	// Center the geometry.
+	geometry.computeBoundingBox();
+
+	var middle = new THREE.Vector3()
+	middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
+	middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
+	middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
+
+    var delta = middle.negate();
+	geometry.vertices.forEach(function(vertex) {
+      vertex.add(delta);
+	});
 
  	return geometry;
 };
@@ -144,7 +148,7 @@ WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
 	requestAnimationFrame(animate);
 
-	this.mesh.rotation.y += .01;
+	this.mesh.rotation.y += .005;
 
 	this.draw();
 };
