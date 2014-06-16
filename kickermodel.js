@@ -1,6 +1,11 @@
-var KickerModel = function(view, pubsub) {
+var KickerModel = function(rendering, view, pubsub) {
+	this.rendering = rendering;
 	this.view = view;
 	this.pubsub = pubsub;
+
+	this.updateDimensions();
+
+	pubsub.subscribe('trigger-recalc', this.updateDimensions.bind(this));
 };
 
 KickerModel.prototype.updateDimensions = function() {	
@@ -10,17 +15,17 @@ KickerModel.prototype.updateDimensions = function() {
 
 	this.radius = this.calculateRadius(this.height, this.angle);
 	this.length = this.calculateLength(this.height, this.angle);
+
+	this.updateProfile();
+
+	this.pubsub.publish("update-view", {
+		'height': this.height,
+		'width': this.width,
+		'angle': this.angle,
+		'radius': this.radius,
+		'length': this.length,
+	});
 };
-
-KickerModel.prototype.height = null;
-
-KickerModel.prototype.width = null;
-
-KickerModel.prototype.angle = null;
-
-KickerModel.prototype.radius = null;
-
-KickerModel.prototype.length = null;
 
 KickerModel.prototype.calculateRadius = function(h, alphaDeg) {
   var alphaRad = alphaDeg * Math.PI / 180,
@@ -34,12 +39,16 @@ KickerModel.prototype.calculateLength = function(h, alphaDeg) {
   return l;    
 }
 
-KickerModel.prototype.createProfile = function(rendering) {
+KickerModel.prototype.getProfile = function() {
+	return this.profile;
+};
+
+KickerModel.prototype.updateProfile = function() {
 	console.log('creating a profile');
-	if (rendering == 'canvas') {
-		return this.createCanvasProfile_();
-	} else if (rendering == 'webgl') {
-		return this.createWebGLProfile_();
+	if (this.rendering == 'canvas') {
+		this.profile = this.createCanvasProfile_();
+	} else if (this.rendering == 'webgl') {
+		this.profile = this.createWebGLProfile_();
 	}
 };
 

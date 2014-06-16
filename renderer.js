@@ -1,40 +1,42 @@
 
-var Renderer = function(canvasEl, type, pubsub) {
+var Renderer = function(profile, canvasEl, type, pubsub) {
 	this.canvasEl = canvasEl;
 	if (type == 'canvas') {
-      this.rendererImpl = new CanvasRenderer(this.canvasEl, pubsub);
+      this.rendererImpl = new CanvasRenderer(profile, this.canvasEl, pubsub);
 	} else if (type == 'webgl') {
-      this.rendererImpl = new WebGLRenderer(this.canvasEl, pubsub);
+      this.rendererImpl = new WebGLRenderer(profile, this.canvasEl, pubsub);
 	}
 
 };
 
-// The target canvas element.
-Renderer.prototype.canvasEl = null;
-
-// The actual renderer implementation.
-Renderer.prototype.rendererImpl = null;
-
 // Performs the rendering operation.
-Renderer.prototype.render = function(profile) {
+Renderer.prototype.render = function() {
   console.log('renderer - rendering');
-  this.rendererImpl.render(profile);
+  this.rendererImpl.render();
 };
+
+Renderer.prototype.updateProfile = function(profile) {
+	this.rendererImpl.updateProfile(profile);
+}
 
 /********************************************************************
  * CANVAS RENDERER
  ********************************************************************/
-var CanvasRenderer = function(canvasEl, pubsub) {
+var CanvasRenderer = function(profile, canvasEl, pubsub) {
+	this.profile = profile;
 	this.canvasEl = canvasEl;
-	this.pubsub = pubsub;
+	this.pubsub = pubsub;	
 };
 
-CanvasRenderer.prototype.canvasEl = null;
+CanvasRenderer.prototype.updateProfile = function(profile) {
+	this.profile = profile;
+	this.render();
+};
 
-CanvasRenderer.prototype.render = function(profile) {
-  console.log('CanvasRenderer - rendering', profile);
+CanvasRenderer.prototype.render = function() {
+  console.log('CanvasRenderer - rendering');
 
-  var points = profile.getPoints();
+  var points = this.profile.getPoints();
   var context = this.canvasEl.getContext('2d');
 
   context.clearRect(0, 0, 800, 600);
@@ -56,30 +58,17 @@ CanvasRenderer.prototype.render = function(profile) {
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(canvasEl, pubsub) {
+var WebGLRenderer = function(profile, canvasEl, pubsub) {
+	this.profile = profile;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;
+
+	this.init();	
 };
 
-WebGLRenderer.prototype.canvasEl = null;
+WebGLRenderer.prototype.render = function() {
+	console.log('WebGLRenderer - rendering');
 
-WebGLRenderer.prototype.camera = null;
-
-WebGLRenderer.prototype.scene = null;
-
-WebGLRenderer.prototype.threeRenderer = null;
-
-WebGLRenderer.prototype.profile = null;
-
-WebGLRenderer.prototype.mesh = null;
-
-WebGLRenderer.prototype.meshYRotation = null;
-
-WebGLRenderer.prototype.render = function(profile) {
-	console.log('WebGLRenderer - rendering', profile);
-
-	this.profile = profile;
-	this.init(profile);
 	this.animate();
 }
 
@@ -105,17 +94,16 @@ WebGLRenderer.prototype.init = function() {
 		this.canvasEl.clientWidth, this.canvasEl.clientHeight);	
 
 	this.meshYRotation = Math.PI / 4;
-	this.setMesh();
-
-	// window.mesh = this.mesh;
-	this.scene.add(this.mesh);
+	this.createMesh();
 };
 
-WebGLRenderer.prototype.setMesh = function(opt_profile) {
-	if (opt_profile) {
-		this.profile = opt_profile;
-	}
+WebGLRenderer.prototype.updateProfile = function(profile) {
+	this.profile = profile;
+	this.scene.remove(this.mesh);
+	this.createMesh();
+};
 
+WebGLRenderer.prototype.createMesh = function() {
 	var basicMaterial =
  		new THREE.MeshLambertMaterial({color: 0xCC0000});
 	this.mesh = new THREE.Mesh(
@@ -124,6 +112,8 @@ WebGLRenderer.prototype.setMesh = function(opt_profile) {
 	);
 
 	this.mesh.rotation.y = this.meshYRotation;
+
+	this.scene.add(this.mesh);	
 };
 
 WebGLRenderer.prototype.buildGeometry = function() { 
@@ -136,7 +126,7 @@ WebGLRenderer.prototype.buildGeometry = function() {
 		rectShape.lineTo(points[i][0] * scale, points[i][1] * scale);
 	}
 	var extrudeSettings = {
-		amount: 2 * scale,
+		amount: this.profile.width * scale,
 		bevelSize: 0,
 		bevelSegments: 1,
 		bevelThickness: 0

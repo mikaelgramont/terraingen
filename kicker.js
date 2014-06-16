@@ -1,16 +1,16 @@
 
-var Kicker = function(profile, renderer) {
-	this.profile = profile;
-	this.renderer = renderer;
+var Kicker = function(model, pubsub) {
+	this.model = model;
+	this.pubsub = pubsub;
+
+	this.pubsub.subscribe('trigger-recalc', this.updateRendererProfile.bind(this));
 };
 
-// The profile (points).
-Kicker.prototype.profile = null;
-
-// The renderer object (canvas or webgl).
-Kicker.prototype.renderer = null;
+Kicker.prototype.updateRendererProfile = function() {
+	this.renderer.updateProfile(this.model.getProfile());
+};
 
 Kicker.prototype.render = function() {
   console.log('kicker - rendering');
-  this.renderer.render(this.profile);
+  this.renderer.render();
 };

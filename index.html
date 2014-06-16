@@ -8,15 +8,15 @@
     <div class="settings clearfix">  
       <label class="settings-item">
         <span class="label-item">Height (<span id="height-label" class="update-on-change">0</span>m)</span>
-        <input id="height" class="value-item trigger-recalc" type="range" min="0.5" max="5" step="0.1">
+        <input id="height" class="value-item trigger-recalc" type="range" min="0.3" max="3" step="0.1" value="1.5">
       </label>
       <label class="settings-item">
-        <span class="label-item">Exit angle (<span id="angle-label" class="update-on-change">0</span>m)</span>
-        <input id="angle" class="trigger-recalc" type="range" min="10" max="89.9" step="0.1">
+        <span class="label-item">Exit angle (<span id="angle-label" class="update-on-change">0</span>deg)</span>
+        <input id="angle" class="trigger-recalc" type="range" min="10" max="89.9" step="0.1" value="45">
       </label>
       <label class="settings-item">
         <span class="label-item">Width (<span id="width-label" class="update-on-change">0</span>m)</span>        
-        <input id="width" class="value-item trigger-recalc" type="range" min="0.5" max="3" step="0.1">
+        <input id="width" class="value-item trigger-recalc" type="range" min="0.5" max="3" step="0.1" value="1.3">
       </label>
       <div class="settings-item">
         <span class="label-item">Radius: <span id="radius-label" class="update-on-change">0</span>m</span>
@@ -26,7 +26,9 @@
       </div>
     </div>
 
-    <canvas id="canvas" class="draw-area" width="800" height="600" />
+    <canvas id="kicker-webgl" class="draw-area" width="400" height="300"></canvas>
+
+    <canvas id="kicker-canvas" class="draw-area" width="800" height="600"></canvas>
     
     <script src="app.js"></script>
     <script src="kicker.js"></script>
@@ -41,11 +43,9 @@
     <script>
       (function() {
         var app = new App();
-        var rendering = 'webgl';
+        
 
         var pubsub = new PubSub();
-
-        var renderer = new Renderer(document.getElementById('canvas'), rendering, pubsub);
 
         var view = new KickerView({
           'height': 'height',
@@ -58,14 +58,18 @@
           'baseLabel': 'base-label',
         }, pubsub);
 
-        var kickerModel = new KickerModel(view, pubsub);
-        kickerModel.updateDimensions();
-
-        var profile = kickerModel.createProfile(rendering);
-
-        var kicker = new Kicker(profile, renderer, pubsub);
+        var rendering = 'webgl';
+        var kickerModel3D = new KickerModel(rendering, view, pubsub);
+        var kicker3D = new Kicker(kickerModel3D, pubsub);
+        kicker3D.renderer = new Renderer(kickerModel3D.getProfile(), document.getElementById('kicker-webgl'), rendering, pubsub);
+        app.addKicker(kicker3D);
         
-        app.addKicker(kicker);
+        rendering = 'canvas';
+        var kickerModel2D = new KickerModel(rendering, view, pubsub);
+        var kicker2D = new Kicker(kickerModel2D, pubsub);
+        kicker2D.renderer = new Renderer(kickerModel2D.getProfile(), document.getElementById('kicker-canvas'), rendering, pubsub);
+        app.addKicker(kicker2D);
+
         app.render();
       }) ();
     </script>

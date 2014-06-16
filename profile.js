@@ -5,10 +5,6 @@ var Profile = function(points, width) {
 	console.log('Profile', this.points, this.width);
 };
 
-Profile.prototype.points = [];
-
-Profile.prototype.width = null;
-
 Profile.prototype.getPoints = function() {
   return this.points;
 }
