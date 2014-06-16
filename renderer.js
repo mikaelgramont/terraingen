@@ -70,6 +70,8 @@ WebGLRenderer.prototype.profile = null;
 
 WebGLRenderer.prototype.mesh = null;
 
+WebGLRenderer.prototype.meshYRotation = null;
+
 WebGLRenderer.prototype.render = function(profile) {
 	console.log('WebGLRenderer - rendering', profile);
 
@@ -99,16 +101,26 @@ WebGLRenderer.prototype.init = function() {
 	this.threeRenderer.setSize(
 		this.canvasEl.clientWidth, this.canvasEl.clientHeight);	
 
+	this.meshYRotation = Math.PI / 4;
+	this.setMesh();
+
+	// window.mesh = this.mesh;
+	this.scene.add(this.mesh);
+};
+
+WebGLRenderer.prototype.setMesh = function(opt_profile) {
+	if (opt_profile) {
+		this.profile = opt_profile;
+	}
+
 	var basicMaterial =
  		new THREE.MeshLambertMaterial({color: 0xCC0000});
 	this.mesh = new THREE.Mesh(
 		this.buildGeometry(),
 		basicMaterial
 	);
-	this.mesh.rotation.y = Math.PI / 4;
 
-	// window.mesh = this.mesh;
-	this.scene.add(this.mesh);
+	this.mesh.rotation.y = this.meshYRotation;
 };
 
 WebGLRenderer.prototype.buildGeometry = function() { 
@@ -148,9 +160,9 @@ WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
 	requestAnimationFrame(animate);
 
-	this.mesh.rotation.y += .005;
-
+	this.mesh.rotation.y = this.meshYRotation;
 	this.draw();
+	this.meshYRotation += .005;
 };
 
 WebGLRenderer.prototype.draw = function() {
