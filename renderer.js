@@ -1,11 +1,12 @@
 
-var Renderer = function(canvasEl, type) {
+var Renderer = function(canvasEl, type, pubsub) {
 	this.canvasEl = canvasEl;
 	if (type == 'canvas') {
-      this.rendererImpl = new CanvasRenderer(this.canvasEl);
+      this.rendererImpl = new CanvasRenderer(this.canvasEl, pubsub);
 	} else if (type == 'webgl') {
-      this.rendererImpl = new WebGLRenderer(this.canvasEl);
+      this.rendererImpl = new WebGLRenderer(this.canvasEl, pubsub);
 	}
+
 };
 
 // The target canvas element.
@@ -23,8 +24,9 @@ Renderer.prototype.render = function(profile) {
 /********************************************************************
  * CANVAS RENDERER
  ********************************************************************/
-var CanvasRenderer = function(canvasEl) {
+var CanvasRenderer = function(canvasEl, pubsub) {
 	this.canvasEl = canvasEl;
+	this.pubsub = pubsub;
 };
 
 CanvasRenderer.prototype.canvasEl = null;
@@ -54,8 +56,9 @@ CanvasRenderer.prototype.render = function(profile) {
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(canvasEl) {
+var WebGLRenderer = function(canvasEl, pubsub) {
 	this.canvasEl = canvasEl;
+	this.pubsub = pubsub;
 };
 
 WebGLRenderer.prototype.canvasEl = null;

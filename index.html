@@ -1,40 +1,40 @@
-<html ng-app="kickerApp">
+<html>
   <head>
     <title>Kicker</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
 
-    <div class="settings clearfix" ng-controller="DimensionsCtrl">  
+    <div class="settings clearfix">  
       <label class="settings-item">
-        <span class="label-item">Height ({{height}}m)</span>        
-        <input id="height" ng-model="height" class="value-item" type="range" min="0.5" max="5" step="0.1">
+        <span class="label-item">Height (<span id="height-label" class="update-on-change">0</span>m)</span>
+        <input id="height" class="value-item trigger-recalc" type="range" min="0.5" max="5" step="0.1">
       </label>
       <label class="settings-item">
-        <span class="label-item">Exit angle ({{angle}})</span>
-        <input id="angle" ng-model="angle" type="range" min="10" max="89.9" step="0.1">
+        <span class="label-item">Exit angle (<span id="angle-label" class="update-on-change">0</span>m)</span>
+        <input id="angle" class="trigger-recalc" type="range" min="10" max="89.9" step="0.1">
       </label>
       <label class="settings-item">
-        <span class="label-item">Width ({{width}}m)</span>        
-        <input id="width" ng-model="width" class="value-item" type="range" min="0.5" max="3" step="0.1">
+        <span class="label-item">Width (<span id="width-label" class="update-on-change">0</span>m)</span>        
+        <input id="width" class="value-item trigger-recalc" type="range" min="0.5" max="3" step="0.1">
       </label>
       <div class="settings-item">
-        <span class="label-item">Radius ({{radius}}m)</span>
+        <span class="label-item">Radius: <span id="radius-label" class="update-on-change">0</span>m</span>
       </div>
       <div class="settings-item">
-        <span class="label-item">Base length ({{dimensions.length}}m)</span>
+        <span class="label-item">Base length: <span id="base-label" class="update-on-change">0</span>m</span>
       </div>
     </div>
 
     <canvas id="canvas" class="draw-area" width="800" height="600" />
     
-    <script src="angular.min.js"></script>
-    <script src="angularapp.js"></script>
     <script src="app.js"></script>
     <script src="kicker.js"></script>
     <script src="kickermodel.js"></script>
-    <script src="renderer.js"></script>
+    <script src="kickerview.js"></script>
     <script src="profile.js"></script>
+    <script src="pubsub.js"></script>
+    <script src="renderer.js"></script>
     <script src="three.js"></script>
     <script src="THREEx.GeometryUtils.js"></script>
 
@@ -43,17 +43,27 @@
         var app = new App();
         var rendering = 'webgl';
 
-        var renderer = new Renderer(document.getElementById('canvas'), rendering);
+        var pubsub = new PubSub();
 
-        var kickerModel = new KickerModel(
-          document.getElementById('height').value,
-          document.getElementById('width').value,
-          document.getElementById('angle').value
-        );
+        var renderer = new Renderer(document.getElementById('canvas'), rendering, pubsub);
+
+        var view = new KickerView({
+          'height': 'height',
+          'heightLabel': 'height-label',
+          'width': 'width',
+          'widthLabel': 'width-label',
+          'angle': 'angle',
+          'angleLabel': 'angle-label',
+          'radiusLabel': 'radius-label',
+          'baseLabel': 'base-label',
+        }, pubsub);
+
+        var kickerModel = new KickerModel(view, pubsub);
+        kickerModel.updateDimensions();
 
         var profile = kickerModel.createProfile(rendering);
 
-        var kicker = new Kicker(profile, renderer);
+        var kicker = new Kicker(profile, renderer, pubsub);
         
         app.addKicker(kicker);
         app.render();

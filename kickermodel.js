@@ -1,7 +1,13 @@
-var KickerModel = function(height, width, angle) {
-	this.height = parseFloat(height);
-	this.width = parseFloat(width);
-	this.angle = parseFloat(angle);
+var KickerModel = function(view, pubsub) {
+	this.view = view;
+	this.pubsub = pubsub;
+};
+
+KickerModel.prototype.updateDimensions = function() {	
+	this.height = parseFloat(this.view.getElement('height').value);
+	this.width = parseFloat(this.view.getElement('width').value);
+	this.angle = parseFloat(this.view.getElement('angle').value);
+
 	this.radius = this.calculateRadius(this.height, this.angle);
 	this.length = this.calculateLength(this.height, this.angle);
 };
