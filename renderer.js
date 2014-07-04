@@ -1,12 +1,11 @@
 
-var Renderer = function(profile, canvasEl, type, pubsub) {
+var Renderer = function(profile, canvasEl, type, pubsub, imageList) {
 	this.canvasEl = canvasEl;
 	if (type == 'canvas') {
       this.rendererImpl = new CanvasRenderer(profile, this.canvasEl, pubsub);
 	} else if (type == 'webgl') {
-      this.rendererImpl = new WebGLRenderer(profile, this.canvasEl, pubsub);
+      this.rendererImpl = new WebGLRenderer(profile, this.canvasEl, pubsub, imageList);
 	}
-
 };
 
 // Performs the rendering operation.
@@ -39,15 +38,44 @@ CanvasRenderer.prototype.render = function() {
   var points = this.profile.getPoints();
   var context = this.canvasEl.getContext('2d');
 
-  context.clearRect(0, 0, 800, 600);
+  var padding = 20;
+  var height = this.canvasEl.clientHeight;
+  var width = this.canvasEl.clientWidth;
+
+  context.clearRect(0, 0, width, height);
+
+  height -= 2 * padding;
+  width -= 2 * padding;
+  
   context.strokeStyle = '#000000';
   context.fillStyle = "rgb(200,0,0)";
   context.lineWidth = 2;
   context.beginPath();
 
-  for (var i = 0, l = points.length; i < l; i++) {
-    context.lineTo(points[i][0], points[i][1]);
+  // Since the curve starts on the ground, the base (x) is at least always
+  // as long as the height (y). Hence finding the furthest x point lets us
+  // figure out the smallest square needed to display the kicker.
+  var maxX = 0;
+  points.forEach(function(point) {
+  	if (point[0] > maxX) {
+  		maxX = point[0];
+  	}
+  });
+
+  var scale;
+  if (height > width) {
+  	scale = height / maxX;
+  } else {
+  	scale = width / maxX;
   }
+
+  var x, y, offsetX, offsetY;
+  points.forEach(function(point) {
+  	x = point[0] * scale + padding;
+  	y = height - point[1] * scale + padding;
+
+    context.lineTo(x, y);
+  });
   context.fill();
 
   context.stroke();
@@ -58,10 +86,11 @@ CanvasRenderer.prototype.render = function() {
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(profile, canvasEl, pubsub) {
+var WebGLRenderer = function(profile, canvasEl, pubsub, imageList) {
 	this.profile = profile;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;
+	this.imageList = imageList;
 
 	this.init();	
 };
@@ -93,7 +122,7 @@ WebGLRenderer.prototype.init = function() {
 	this.threeRenderer.setSize(
 		this.canvasEl.clientWidth, this.canvasEl.clientHeight);	
 
-	this.meshYRotation = Math.PI / 4;
+	this.meshYRotation = Math.PI;
 	this.createMesh();
 };
 
@@ -104,12 +133,18 @@ WebGLRenderer.prototype.updateProfile = function(profile) {
 };
 
 WebGLRenderer.prototype.createMesh = function() {
-	var basicMaterial =
- 		new THREE.MeshLambertMaterial({color: 0xCC0000});
-	this.mesh = new THREE.Mesh(
-		this.buildGeometry(),
-		basicMaterial
-	);
+	var geometry = this.buildGeometry();
+	
+	var woodMap = THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('wood'));
+	woodMap.wrapS = woodMap.wrapT = THREE.RepeatWrapping;
+	woodMap.anisotropy = 16;
+
+	console.log('woodMap', woodMap);
+
+	var material = new THREE.MeshLambertMaterial({
+        map: woodMap
+    });	
+	this.mesh = new THREE.Mesh(geometry, material);
 
 	this.mesh.rotation.y = this.meshYRotation;
 
@@ -117,14 +152,25 @@ WebGLRenderer.prototype.createMesh = function() {
 };
 
 WebGLRenderer.prototype.buildGeometry = function() { 
+	//return new THREE.CubeGeometry(100, 100, 100);
+	var i, l;
+
 	var rectShape = new THREE.Shape();
 	var points = this.profile.getPoints();
 
     var scale = 60;
+	var maxX = -Infinity,
+		minX = Infinity,
+		maxY = -Infinity,
+		minY = Infinity,
+		rangeX = 0,
+		rangeY = 0;
+
 	rectShape.moveTo(points[0][0] * scale, points[0][1] * scale);
-	for (var i = 1, l = points.length; i < l; i++) {
+	for (i = 1, l = points.length; i < l; i++) {
 		rectShape.lineTo(points[i][0] * scale, points[i][1] * scale);
 	}
+
 	var extrudeSettings = {
 		amount: this.profile.width * scale,
 		bevelSize: 0,
@@ -132,6 +178,46 @@ WebGLRenderer.prototype.buildGeometry = function() {
 		bevelThickness: 0
 	};
 	var geometry = new THREE.ExtrudeGeometry(rectShape, extrudeSettings);
+
+	// Compute the UV mapping:
+	// Go through all faces, and for each of their vertices,
+	// calculate a Vector2 whose components are within [0,1].
+	// This is done by dividing the positions of each vertice by the
+	// 'length' of the shape in each dimension.
+	// TODO: make sure this projects correctly on the extruded portions,
+	//	most likely by inspecting the normal of the face first, and doing
+	// a different calculation.
+	for (i = 0, l = geometry.vertices.length; i < l; i++) {
+
+		if (maxX < geometry.vertices[i].x) {
+			maxX = geometry.vertices[i].x;
+		}
+		if (maxY < geometry.vertices[i].y) {
+			maxY = geometry.vertices[i].y;
+		}
+		if (minX > geometry.vertices[i].x) {
+			minX = geometry.vertices[i].x;
+		}
+		if (minY > geometry.vertices[i].y) {
+			minY = geometry.vertices[i].y;
+		}
+	}
+	rangeX = maxX - minX;
+	rangeY = maxY - minY;
+
+	geometry.faceVertexUvs = [[]];
+	for (i = 0, l = geometry.faces.length; i < l; i++) {
+		var face = geometry.faces[i];
+		var vertices = [
+			geometry.vertices[face.a],
+			geometry.vertices[face.b],
+			geometry.vertices[face.c]
+		];
+		var mappedVertices = vertices.map(function(vertex) {
+			return new THREE.Vector2(vertex.x / rangeX, vertex.y / rangeY);
+		});
+	    geometry.faceVertexUvs[0].push(mappedVertices);
+	}
 
 	// Center the geometry.
 	geometry.computeBoundingBox();

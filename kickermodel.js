@@ -56,23 +56,21 @@ KickerModel.prototype.createCanvasProfile_ = function() {
   console.log('creating a canvas profile');
   var points = [];
 
-  var canvasHeight = 600;
   var angleRad = this.angle * Math.PI / 180;
-  var scale = 150;
   var steps = 20;
   var currentAngleRad, x, y;
-  var scaledRadius = this.radius * scale;
-
+  
   for (var i = 0; i < steps; i++) {
     currentAngleRad = i / steps * angleRad;
-    x = scaledRadius * Math.sin(currentAngleRad);
-    y = canvasHeight - scaledRadius * (1 - Math.cos(currentAngleRad));
+    x = this.radius * Math.sin(currentAngleRad);
+    y = this.radius * (1 - Math.cos(currentAngleRad));
     points.push([x,y]);
   }
-  points.push([x + 20, y]); 
-  points.push([x + 20, canvasHeight]); 
-  points.push([0, canvasHeight]); 
+  points.push([x + .2, y]); 
+  points.push([x + .2, 0]); 
+  points.push([0, 0]); 
 
+  // Returns a profile that is not scaled and needs to be flipped vertically.
   return new Profile(points, this.width);
 };
 

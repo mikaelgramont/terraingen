@@ -26,12 +26,17 @@
       </div>
     </div>
 
-    <canvas id="kicker-webgl" class="draw-area" width="400" height="300"></canvas>
+    <div class="preload-container">
 
-    <canvas id="kicker-canvas" class="draw-area" width="800" height="600"></canvas>
+    </div>
+
+    <canvas id="kicker-webgl" class="draw-area" width="800" height="600"></canvas>
+
+    <canvas id="kicker-canvas" class="draw-area" width="400" height="300"></canvas>
     
     <script src="app.js"></script>
     <script src="kicker.js"></script>
+    <script src="imagelist.js"></script>
     <script src="kickermodel.js"></script>
     <script src="kickerview.js"></script>
     <script src="profile.js"></script>
@@ -44,6 +49,7 @@
       (function() {
         var app = new App();
         
+        var imageList = new ImageList();
 
         var pubsub = new PubSub();
 
@@ -61,13 +67,13 @@
         var rendering = 'webgl';
         var kickerModel3D = new KickerModel(rendering, view, pubsub);
         var kicker3D = new Kicker(kickerModel3D, pubsub);
-        kicker3D.renderer = new Renderer(kickerModel3D.getProfile(), document.getElementById('kicker-webgl'), rendering, pubsub);
+        kicker3D.renderer = new Renderer(kickerModel3D.getProfile(), document.getElementById('kicker-webgl'), rendering, pubsub, imageList);
         app.addKicker(kicker3D);
         
         rendering = 'canvas';
         var kickerModel2D = new KickerModel(rendering, view, pubsub);
         var kicker2D = new Kicker(kickerModel2D, pubsub);
-        kicker2D.renderer = new Renderer(kickerModel2D.getProfile(), document.getElementById('kicker-canvas'), rendering, pubsub);
+        kicker2D.renderer = new Renderer(kickerModel2D.getProfile(), document.getElementById('kicker-canvas'), rendering, pubsub, imageList);
         app.addKicker(kicker2D);
 
         app.render();
