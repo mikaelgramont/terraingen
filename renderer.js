@@ -1,10 +1,10 @@
 
-var Renderer = function(profile, canvasEl, type, pubsub, imageList) {
+var Renderer = function(representation, canvasEl, type, pubsub, imageList) {
 	this.canvasEl = canvasEl;
 	if (type == 'canvas') {
-      this.rendererImpl = new CanvasRenderer(profile, this.canvasEl, pubsub);
+      this.rendererImpl = new CanvasRenderer(representation, this.canvasEl, pubsub);
 	} else if (type == 'webgl') {
-      this.rendererImpl = new WebGLRenderer(profile, this.canvasEl, pubsub, imageList);
+      this.rendererImpl = new WebGLRenderer(representation, this.canvasEl, pubsub, imageList);
 	}
 };
 
@@ -14,28 +14,28 @@ Renderer.prototype.render = function() {
   this.rendererImpl.render();
 };
 
-Renderer.prototype.updateProfile = function(profile) {
-	this.rendererImpl.updateProfile(profile);
+Renderer.prototype.updateRepresentation = function(representation) {
+	this.rendererImpl.updateRepresentation(representation);
 }
 
 /********************************************************************
  * CANVAS RENDERER
  ********************************************************************/
-var CanvasRenderer = function(profile, canvasEl, pubsub) {
-	this.profile = profile;
+var CanvasRenderer = function(representation, canvasEl, pubsub) {
+	this.representation = representation;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;	
 };
 
-CanvasRenderer.prototype.updateProfile = function(profile) {
-	this.profile = profile;
+CanvasRenderer.prototype.updateRepresentation = function(representation) {
+	this.representation = representation;
 	this.render();
 };
 
 CanvasRenderer.prototype.render = function() {
   console.log('CanvasRenderer - rendering');
 
-  var points = this.profile.getPoints();
+  var points = this.representation.getPoints();
   var context = this.canvasEl.getContext('2d');
 
   var padding = 20;
@@ -86,8 +86,8 @@ CanvasRenderer.prototype.render = function() {
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(profile, canvasEl, pubsub, imageList) {
-	this.profile = profile;
+var WebGLRenderer = function(representation, canvasEl, pubsub, imageList) {
+	this.representation = representation;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;
 	this.imageList = imageList;
@@ -126,8 +126,8 @@ WebGLRenderer.prototype.init = function() {
 	this.createMesh();
 };
 
-WebGLRenderer.prototype.updateProfile = function(profile) {
-	this.profile = profile;
+WebGLRenderer.prototype.updateRepresentation = function(representation) {
+	this.representation = representation;
 	this.scene.remove(this.mesh);
 	this.createMesh();
 };
@@ -136,8 +136,6 @@ WebGLRenderer.prototype.createMesh = function() {
 	var geometry = this.buildGeometry();
 	
 	var woodMap = THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('wood'));
-	woodMap.wrapS = woodMap.wrapT = THREE.RepeatWrapping;
-	woodMap.anisotropy = 16;
 
 	console.log('woodMap', woodMap);
 
@@ -154,9 +152,10 @@ WebGLRenderer.prototype.createMesh = function() {
 WebGLRenderer.prototype.buildGeometry = function() { 
 	//return new THREE.CubeGeometry(100, 100, 100);
 	var i, l;
+	const WALL_WIDTH = 2.0;
 
 	var rectShape = new THREE.Shape();
-	var points = this.profile.getPoints();
+	var points = this.representation.getPoints();
 
     var scale = 60;
 	var maxX = -Infinity,
@@ -172,7 +171,7 @@ WebGLRenderer.prototype.buildGeometry = function() {
 	}
 
 	var extrudeSettings = {
-		amount: this.profile.width * scale,
+		amount: WALL_WIDTH,
 		bevelSize: 0,
 		bevelSegments: 1,
 		bevelThickness: 0

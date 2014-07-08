@@ -1,7 +1,5 @@
-objects:
-- profile
-- kicker model
-
-- app (contains many kickers)
-- kicker (contains a profile, a renderer)
-- renderer (canvas/webgl, contains a target element)
+TODO
+- create a group of objects:
+	- profiles (2)
+	- surface (itself a group broken down into n objects of fixed width)
+	- 2x4s (2 for the front, and one every x units under the surface)

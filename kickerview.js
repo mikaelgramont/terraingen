@@ -1,13 +1,15 @@
 var KickerView = function(elements, pubsub) {
 	this.elements = [];
-	this.visElements = [];
+	this.visElements = {};
 	this.pubsub = pubsub;
 
 	for (var name in elements) {
 		if (elements.hasOwnProperty(name)) {
-			this.elements[name] = document.getElementById(elements[name]);
-			if (this.elements[name].classList.contains("update-on-change")) {
-				this.visElements.push(this.elements[name]);
+			var element = document.getElementById(elements[name]);
+			if (element.classList.contains("update-on-change")) {
+				this.visElements[name] = element;
+			} else {
+				this.elements[name] = element;
 			}
 		}
 	}
@@ -23,7 +25,7 @@ KickerView.prototype.getElement = function(elName) {
 
 KickerView.prototype.updateView = function(updates) {
 	for (var name in updates) {
-		var element = this.elements[name + "Label"];
+		var element = this.visElements[name + "Label"];
 		if (!element) {
 			continue;
 		}

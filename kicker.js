@@ -7,7 +7,7 @@ var Kicker = function(model, pubsub) {
 };
 
 Kicker.prototype.updateRendererProfile = function() {
-	this.renderer.updateProfile(this.model.getProfile());
+	this.renderer.updateRepresentation(this.model.getRepresentation());
 };
 
 Kicker.prototype.render = function() {

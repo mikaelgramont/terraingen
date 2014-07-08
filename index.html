@@ -24,6 +24,9 @@
       <div class="settings-item">
         <span class="label-item">Base length: <span id="base-label" class="update-on-change">0</span>m</span>
       </div>
+      <div class="settings-item">
+        <span class="label-item">Surface length: <span id="arc-label" class="update-on-change">0</span>m</span>
+      </div>
     </div>
 
     <div class="preload-container">
@@ -35,11 +38,14 @@
     <canvas id="kicker-canvas" class="draw-area" width="400" height="300"></canvas>
     
     <script src="app.js"></script>
+    <script src="config.js"></script>
     <script src="kicker.js"></script>
     <script src="imagelist.js"></script>
     <script src="kickermodel.js"></script>
     <script src="kickerview.js"></script>
-    <script src="profile.js"></script>
+    <script src="parts3d.js"></script>
+    <script src="representation2d.js"></script>
+    <script src="representation3d.js"></script>
     <script src="pubsub.js"></script>
     <script src="renderer.js"></script>
     <script src="three.js"></script>
@@ -61,19 +67,20 @@
           'angle': 'angle',
           'angleLabel': 'angle-label',
           'radiusLabel': 'radius-label',
-          'baseLabel': 'base-label',
+          'lengthLabel': 'base-label',
+          'arcLabel': 'arc-label'
         }, pubsub);
 
         var rendering = 'webgl';
         var kickerModel3D = new KickerModel(rendering, view, pubsub);
         var kicker3D = new Kicker(kickerModel3D, pubsub);
-        kicker3D.renderer = new Renderer(kickerModel3D.getProfile(), document.getElementById('kicker-webgl'), rendering, pubsub, imageList);
+        kicker3D.renderer = new Renderer(kickerModel3D.getRepresentation(), document.getElementById('kicker-webgl'), rendering, pubsub, imageList);
         app.addKicker(kicker3D);
         
         rendering = 'canvas';
         var kickerModel2D = new KickerModel(rendering, view, pubsub);
         var kicker2D = new Kicker(kickerModel2D, pubsub);
-        kicker2D.renderer = new Renderer(kickerModel2D.getProfile(), document.getElementById('kicker-canvas'), rendering, pubsub, imageList);
+        kicker2D.renderer = new Renderer(kickerModel2D.getRepresentation(), document.getElementById('kicker-canvas'), rendering, pubsub, imageList);
         app.addKicker(kicker2D);
 
         app.render();
