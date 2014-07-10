@@ -71,17 +71,15 @@
           'arcLabel': 'arc-label'
         }, pubsub);
 
-        var rendering = 'webgl';
-        var kickerModel3D = new KickerModel(rendering, view, pubsub);
-        var kicker3D = new Kicker(kickerModel3D, pubsub);
-        kicker3D.renderer = new Renderer(kickerModel3D.getRepresentation(), document.getElementById('kicker-webgl'), rendering, pubsub, imageList);
-        app.addKicker(kicker3D);
-        
-        rendering = 'canvas';
-        var kickerModel2D = new KickerModel(rendering, view, pubsub);
-        var kicker2D = new Kicker(kickerModel2D, pubsub);
-        kicker2D.renderer = new Renderer(kickerModel2D.getRepresentation(), document.getElementById('kicker-canvas'), rendering, pubsub, imageList);
-        app.addKicker(kicker2D);
+        var kickerModel = new KickerModel(view, pubsub);
+
+        var kicker = new Kicker(kickerModel, pubsub);
+        var representation3D = kickerModel.createRepresentation('webgl');
+        kicker.addRenderer(new WebGLRenderer(representation3D, document.getElementById('kicker-webgl'), pubsub, imageList));
+        var representation2D = kickerModel.createRepresentation('canvas');
+        kicker.addRenderer(new CanvasRenderer(representation2D, document.getElementById('kicker-canvas'), pubsub));
+        kickerModel.setKicker(kicker);
+        app.addKicker(kicker);
 
         app.render();
       }) ();

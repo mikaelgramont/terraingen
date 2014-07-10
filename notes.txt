@@ -1,5 +1,7 @@
 TODO
+- connect the UI events to renderer updates
+
 - create a group of objects:
 	- profiles (2)
-	- surface (itself a group broken down into n objects of fixed width)
+	- surface (itself a group broken down into n slats of fixed width)
 	- 2x4s (2 for the front, and one every x units under the surface)

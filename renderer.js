@@ -1,27 +1,8 @@
-
-var Renderer = function(representation, canvasEl, type, pubsub, imageList) {
-	this.canvasEl = canvasEl;
-	if (type == 'canvas') {
-      this.rendererImpl = new CanvasRenderer(representation, this.canvasEl, pubsub);
-	} else if (type == 'webgl') {
-      this.rendererImpl = new WebGLRenderer(representation, this.canvasEl, pubsub, imageList);
-	}
-};
-
-// Performs the rendering operation.
-Renderer.prototype.render = function() {
-  console.log('renderer - rendering');
-  this.rendererImpl.render();
-};
-
-Renderer.prototype.updateRepresentation = function(representation) {
-	this.rendererImpl.updateRepresentation(representation);
-}
-
 /********************************************************************
  * CANVAS RENDERER
  ********************************************************************/
 var CanvasRenderer = function(representation, canvasEl, pubsub) {
+	this.type = 'canvas';
 	this.representation = representation;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;	
@@ -82,11 +63,16 @@ CanvasRenderer.prototype.render = function() {
   context.closePath();
 }
 
+CanvasRenderer.prototype.updateRepresentation = function(model) {
+	this.representation = model.createRepresentation('canvas');
+};
+
 
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
 var WebGLRenderer = function(representation, canvasEl, pubsub, imageList) {
+	this.type = 'webgl';
 	this.representation = representation;
 	this.canvasEl = canvasEl;
 	this.pubsub = pubsub;
@@ -246,4 +232,8 @@ WebGLRenderer.prototype.animate = function() {
 WebGLRenderer.prototype.draw = function() {
 	// console.log('WebGLRenderer - drawing');
 	this.threeRenderer.render(this.scene, this.camera);
+};
+
+WebGLRenderer.prototype.updateRepresentation = function(model) {
+	this.representation = model.createRepresentation('webgl');
 };

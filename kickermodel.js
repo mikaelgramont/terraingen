@@ -1,5 +1,5 @@
-var KickerModel = function(rendering, view, pubsub) {
-	this.rendering = rendering;
+var KickerModel = function(view, pubsub) {
+	this.kicker = null;
 	this.view = view;
 	this.pubsub = pubsub;
 
@@ -7,6 +7,10 @@ var KickerModel = function(rendering, view, pubsub) {
 
 	pubsub.subscribe('trigger-recalc', this.updateDimensions.bind(this));
 };
+
+KickerModel.prototype.setKicker = function(kicker) {
+	this.kicker = kicker;
+}
 
 KickerModel.prototype.updateDimensions = function() {	
 	this.height = parseFloat(this.view.getElement('height').value);
@@ -17,8 +21,6 @@ KickerModel.prototype.updateDimensions = function() {
 	this.length = this.calculateLength(this.height, this.angle);
 	this.arc = this.calculateArc(this.radius, this.angle);
 
-	this.updateRepresentation();
-
 	this.pubsub.publish("update-view", {
 		'height': this.height,
 		'width': this.width,
@@ -27,6 +29,8 @@ KickerModel.prototype.updateDimensions = function() {
 		'length': this.length,
 		'arc': this.arc
 	});
+
+	// this.kicker.updateRendererRepresentations();
 };
 
 KickerModel.prototype.calculateRadius = function(h, alphaDeg) {
@@ -46,17 +50,15 @@ KickerModel.prototype.calculateArc = function(radius, alphaDeg) {
   return arc;
 }
 
-KickerModel.prototype.getRepresentation = function() {
-	return this.representation;
-};
-
-KickerModel.prototype.updateRepresentation = function() {
+KickerModel.prototype.createRepresentation = function(rendering) {
 	console.log('creating a representation');
-	if (this.rendering == 'canvas') {
-		this.representation = this.createCanvasRepresentation_();
-	} else if (this.rendering == 'webgl') {
-		this.representation = this.createWebGLRepresentation_();
+	var representation
+	if (rendering == 'canvas') {
+		representation = this.createCanvasRepresentation_();
+	} else if (rendering == 'webgl') {
+		representation = this.createWebGLRepresentation_();
 	}
+	return representation;
 };
 
 KickerModel.prototype.createCanvasRepresentation_ = function() {
