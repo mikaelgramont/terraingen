@@ -1,16 +1,10 @@
 /********************************************************************
  * CANVAS RENDERER
  ********************************************************************/
-var CanvasRenderer = function(representation, canvasEl, pubsub) {
+var CanvasRenderer = function(canvasEl, representation) {
 	this.type = 'canvas';
 	this.representation = representation;
 	this.canvasEl = canvasEl;
-	this.pubsub = pubsub;	
-};
-
-CanvasRenderer.prototype.updateRepresentation = function(representation) {
-	this.representation = representation;
-	this.render();
 };
 
 CanvasRenderer.prototype.render = function() {
@@ -64,18 +58,18 @@ CanvasRenderer.prototype.render = function() {
 }
 
 CanvasRenderer.prototype.updateRepresentation = function(model) {
-	this.representation = model.createRepresentation('canvas');
+	this.representation = model.createCanvasRepresentation();
+	this.render();
 };
 
 
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(representation, canvasEl, pubsub, imageList) {
+var WebGLRenderer = function(canvasEl, representation, imageList) {
 	this.type = 'webgl';
 	this.representation = representation;
 	this.canvasEl = canvasEl;
-	this.pubsub = pubsub;
 	this.imageList = imageList;
 
 	this.init();	
@@ -109,12 +103,6 @@ WebGLRenderer.prototype.init = function() {
 		this.canvasEl.clientWidth, this.canvasEl.clientHeight);	
 
 	this.meshYRotation = Math.PI;
-	this.createMesh();
-};
-
-WebGLRenderer.prototype.updateRepresentation = function(representation) {
-	this.representation = representation;
-	this.scene.remove(this.mesh);
 	this.createMesh();
 };
 
@@ -235,5 +223,7 @@ WebGLRenderer.prototype.draw = function() {
 };
 
 WebGLRenderer.prototype.updateRepresentation = function(model) {
-	this.representation = model.createRepresentation('webgl');
+	this.representation = model.createWebGLRepresentation();
+	this.scene.remove(this.mesh);
+	this.createMesh();
 };

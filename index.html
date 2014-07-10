@@ -54,11 +54,9 @@
     <script>
       (function() {
         var app = new App();
-        
         var imageList = new ImageList();
-
         var pubsub = new PubSub();
-
+        var kickerModel = new KickerModel(pubsub);
         var view = new KickerView({
           'height': 'height',
           'heightLabel': 'height-label',
@@ -70,17 +68,13 @@
           'lengthLabel': 'base-label',
           'arcLabel': 'arc-label'
         }, pubsub);
-
-        var kickerModel = new KickerModel(view, pubsub);
+        view.publishInputValues();
 
         var kicker = new Kicker(kickerModel, pubsub);
-        var representation3D = kickerModel.createRepresentation('webgl');
-        kicker.addRenderer(new WebGLRenderer(representation3D, document.getElementById('kicker-webgl'), pubsub, imageList));
-        var representation2D = kickerModel.createRepresentation('canvas');
-        kicker.addRenderer(new CanvasRenderer(representation2D, document.getElementById('kicker-canvas'), pubsub));
-        kickerModel.setKicker(kicker);
-        app.addKicker(kicker);
+        kicker.add3DRepresentation(document.getElementById('kicker-webgl'), imageList);
+        kicker.add2DRepresentation(document.getElementById('kicker-canvas'));
 
+        app.addKicker(kicker);
         app.render();
       }) ();
     </script>

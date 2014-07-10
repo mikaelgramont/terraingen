@@ -1,5 +1,5 @@
 TODO
-- connect the UI events to renderer updates
+- move the geometry/object creation, update and eventual animations into representation objects, those should not be in renderers.
 
 - create a group of objects:
 	- profiles (2)

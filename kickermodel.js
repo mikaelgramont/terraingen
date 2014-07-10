@@ -1,9 +1,6 @@
-var KickerModel = function(view, pubsub) {
+var KickerModel = function(pubsub) {
 	this.kicker = null;
-	this.view = view;
 	this.pubsub = pubsub;
-
-	this.updateDimensions();
 
 	pubsub.subscribe('trigger-recalc', this.updateDimensions.bind(this));
 };
@@ -12,15 +9,16 @@ KickerModel.prototype.setKicker = function(kicker) {
 	this.kicker = kicker;
 }
 
-KickerModel.prototype.updateDimensions = function() {	
-	this.height = parseFloat(this.view.getElement('height').value);
-	this.width = parseFloat(this.view.getElement('width').value);
-	this.angle = parseFloat(this.view.getElement('angle').value);
+KickerModel.prototype.updateDimensions = function(dimensions) {	
+	this.height = parseFloat(dimensions['height']);
+	this.width = parseFloat(dimensions['width']);
+	this.angle = parseFloat(dimensions['angle']);
 
 	this.radius = this.calculateRadius(this.height, this.angle);
 	this.length = this.calculateLength(this.height, this.angle);
 	this.arc = this.calculateArc(this.radius, this.angle);
 
+	console.log('KickerModel.prototype.updateDimensions');
 	this.pubsub.publish("update-view", {
 		'height': this.height,
 		'width': this.width,
@@ -30,7 +28,7 @@ KickerModel.prototype.updateDimensions = function() {
 		'arc': this.arc
 	});
 
-	// this.kicker.updateRendererRepresentations();
+	this.pubsub.publish('update-representations', this);
 };
 
 KickerModel.prototype.calculateRadius = function(h, alphaDeg) {
@@ -50,18 +48,7 @@ KickerModel.prototype.calculateArc = function(radius, alphaDeg) {
   return arc;
 }
 
-KickerModel.prototype.createRepresentation = function(rendering) {
-	console.log('creating a representation');
-	var representation
-	if (rendering == 'canvas') {
-		representation = this.createCanvasRepresentation_();
-	} else if (rendering == 'webgl') {
-		representation = this.createWebGLRepresentation_();
-	}
-	return representation;
-};
-
-KickerModel.prototype.createCanvasRepresentation_ = function() {
+KickerModel.prototype.createCanvasRepresentation = function() {
   console.log('creating a canvas representation');
   var points = [];
 
@@ -83,7 +70,7 @@ KickerModel.prototype.createCanvasRepresentation_ = function() {
   return new Representation2D(points);
 };
 
-KickerModel.prototype.createWebGLRepresentation_ = function() {
+KickerModel.prototype.createWebGLRepresentation = function() {
 	console.log('creating a WebGL representation');
 	var points = [];
 

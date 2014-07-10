@@ -35,6 +35,14 @@ KickerView.prototype.updateView = function(updates) {
 
 KickerView.prototype.onChange = function(e) {
 	if (e.target.classList.contains("trigger-recalc")) {
-		this.pubsub.publish("trigger-recalc");
+		this.publishInputValues();
 	}
+};
+
+KickerView.prototype.publishInputValues = function() {
+	this.pubsub.publish("trigger-recalc", {
+		'height': this.getElement('height').value,
+		'width': this.getElement('width').value,
+		'angle': this.getElement('angle').value,			
+	});
 };
