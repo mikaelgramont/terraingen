@@ -70,43 +70,7 @@ KickerModel.prototype.createCanvasRepresentation = function() {
   return new Representation2D(points);
 };
 
-KickerModel.prototype.createWebGLRepresentation = function() {
+KickerModel.prototype.createWebGLRepresentation = function(imageList) {
 	console.log('creating a WebGL representation');
-	var points = [];
-
-	var angleRad = this.angle * Math.PI / 180;
-	var steps = config.model3d.sides.steps;
-	var currentAngleRad, x, y;
-
-	for (var i = 0; i <= steps; i++) {
-	currentAngleRad = i / steps * angleRad;
-	x = this.radius * Math.sin(currentAngleRad);
-	y = this.radius * (1 - Math.cos(currentAngleRad));
-		points.push([x,y]);
-	}
-	points.push([x + .2, y]); 
-	points.push([x + .2, 0]); 
-
-	var defaultHeight = config.model3d.slats.defaultHeight;
-	var minHeight = config.model3d.slats.minHeight;
-	var thickness = config.model3d	.slats.thickness;
-
-	var slats = [];
-	var remainingArcLength = this.arc;
-	var slat_height;
-	while(remainingArcLength) {
-		if (remainingArcLength > defaultHeight) {
-			slat_height = defaultHeight;
-		} else {
-			if (remainingArcLength < minHeight) {
-				remainingArcLength = 0;
-				break;
-			}
-			slat_height = remainingArcLength;
-		}
-		remainingArcLength -= slat_height;
-		slats.push(new Slat3D(this.width, slat_height, thickness));
-	}
-
-	return new Representation3D(points, slats, this.width);
+	return new Representation3D(this.angle, this.arc, this.radius, this.width, imageList, config);
 };

@@ -1,5 +1,6 @@
 TODO
-- move the geometry/object creation, update and eventual animations into representation objects, those should not be in renderers.
+- dispose properly of everything before updating representations.
+currently, animation methods keep piling on, and dimensions aren't updated.
 
 - create a group of objects:
 	- profiles (2)
