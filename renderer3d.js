@@ -1,18 +1,32 @@
 /********************************************************************
  * WEBGL RENDERER
  ********************************************************************/
-var WebGLRenderer = function(canvasEl, representation) {
-	this.representation = representation;
+var WebGLRenderer = function(canvasEl, representation, pubsub) {
 	this.canvasEl = canvasEl;
+	this.representation = representation;
+	this.pubsub = pubsub;
 	this.yRotation = Math.PI;
 	this.parts = null;
-	this.init();	
+	this.init();
+
+	// requestAnimationFrame id.
+	this.rafId = null;
+
+	this.pubsub.subscribe("stop-rendering", this.stop.bind(this));
+	this.pubsub.subscribe("resume-rendering", this.render.bind(this));
 };
 
 WebGLRenderer.prototype.render = function() {
 	console.log('WebGLRenderer - rendering');
+	if (!this.rafId) {
+		this.animate();
+	}
+}
 
-	this.animate();
+WebGLRenderer.prototype.stop = function() {
+	console.log('WebGLRenderer - rendering');
+	cancelAnimationFrame(this.rafId);
+	this.rafId = null;
 }
 
 WebGLRenderer.prototype.init = function() {
@@ -36,6 +50,11 @@ WebGLRenderer.prototype.init = function() {
 	this.threeRenderer.setSize(
 	this.canvasEl.clientWidth, this.canvasEl.clientHeight);
 
+	this.setupGroup();
+};
+
+	
+WebGLRenderer.prototype.setupGroup = function() {
 	var parts = this.representation.getParts();
 	this.group = new THREE.Object3D();
 	for (var part in parts) {
@@ -48,7 +67,7 @@ WebGLRenderer.prototype.init = function() {
 
 WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
-	requestAnimationFrame(animate);
+	this.rafId = requestAnimationFrame(animate);
 
 	this.group.rotation.y = this.yRotation;
 	this.draw();
@@ -61,5 +80,6 @@ WebGLRenderer.prototype.draw = function() {
 
 WebGLRenderer.prototype.updateRepresentation = function(model) {
 	this.representation = model.createWebGLRepresentation(this.representation.imageList);
-	this.render();
+	this.scene.remove(this.group);
+	this.setupGroup();
 };

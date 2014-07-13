@@ -29,6 +29,12 @@
       </div>
     </div>
 
+    <div>
+      <button id="stop">Stop</button>
+      <button id="resume" disabled>Resume</button>
+    </div>
+
+
     <div class="preload-container">
 
     </div>
@@ -68,7 +74,9 @@
           'angleLabel': 'angle-label',
           'radiusLabel': 'radius-label',
           'lengthLabel': 'base-label',
-          'arcLabel': 'arc-label'
+          'arcLabel': 'arc-label',
+          'stop': 'stop',
+          'resume': 'resume'
         }, pubsub);
         view.publishInputValues();
 

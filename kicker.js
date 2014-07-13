@@ -13,7 +13,7 @@ Kicker.prototype.clearRenderers = function() {
 
 Kicker.prototype.add3DRepresentation = function(canvasEl, imageList) {
 	var representation = this.model.createWebGLRepresentation(imageList);
-	var renderer = new WebGLRenderer(canvasEl, representation);
+	var renderer = new WebGLRenderer(canvasEl, representation, this.pubsub);
 	this.renderers.push(renderer);
 };
 
