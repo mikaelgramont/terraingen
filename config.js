@@ -4,9 +4,10 @@ var config = {
 			'steps': 20
 		},
 		'slats': {
-			'defaultHeight': .2,
-			'minHeight': .05,
-			'thickness': .02
+			'defaultLength': .2,
+			'minLength': .05,
+			'thickness': .02,
+			'space': .02
 		}
 	}
 	

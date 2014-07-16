@@ -7,7 +7,7 @@ var Side = function(points, offset, imageList) {
 Side.prototype.createMesh = function(points, offset) {
 	var geometry = this.buildGeometry(points, offset);
 	
-	var woodMap = THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('wood'));
+	var woodMap = THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('side'));
 
 	var material = new THREE.MeshLambertMaterial({
         map: woodMap
@@ -88,9 +88,9 @@ Side.prototype.buildGeometry = function(points, offset) {
 	geometry.computeBoundingBox();
 
 	var middle = new THREE.Vector3()
-	middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
-	middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
-	middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
+	// middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
+	//middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
+	// middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
 
     var delta = middle.negate().add(offset);
 	geometry.vertices.forEach(function(vertex) {

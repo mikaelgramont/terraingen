@@ -39,8 +39,12 @@ WebGLRenderer.prototype.init = function() {
 	this.scene = new THREE.Scene();
 
 	var light = new THREE.DirectionalLight(0xffffff);
-	light.position.set(20, 100, 120);
+	light.position.set(300, 10, 300);
 	this.scene.add(light);
+
+	var light2 = new THREE.DirectionalLight(0xffffff);
+	light2.position.set(-100, 200, -120);
+	this.scene.add(light2);
 
 	this.threeRenderer = new THREE.WebGLRenderer({
 		antialias: true,
@@ -50,20 +54,37 @@ WebGLRenderer.prototype.init = function() {
 	this.threeRenderer.setSize(
 	this.canvasEl.clientWidth, this.canvasEl.clientHeight);
 
+	this.orbitControls = new THREE.OrbitControls(this.camera, this.canvasEl);
+
 	this.setupGroup();
+
+	this.scene.add(new THREE.AxisHelper(120));
+	this.scene.add(new THREE.GridHelper(100,10));
 };
 
 	
 WebGLRenderer.prototype.setupGroup = function() {
 	var parts = this.representation.getParts();
 	this.group = new THREE.Object3D();
+
+	var addSubPart = function(subPart) {
+		this.group.add(subPart.mesh);	
+	}
 	for (var part in parts) {
 	    if (parts.hasOwnProperty(part)) {
-	        this.group.add(parts[part].mesh);
+	    	if (Array.isArray(parts[part])) {
+	    		parts[part].forEach(this.addPart.bind(this));
+	    	} else {
+		        this.addPart(parts[part]);
+		    }
 	    }
 	}
 	this.scene.add(this.group);
 };
+
+WebGLRenderer.prototype.addPart = function(part) {
+	this.group.add(part.mesh);	
+}
 
 WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
@@ -71,7 +92,7 @@ WebGLRenderer.prototype.animate = function() {
 
 	this.group.rotation.y = this.yRotation;
 	this.draw();
-	this.yRotation += .005;
+	//this.yRotation += .005;
 };
 
 WebGLRenderer.prototype.draw = function() {
