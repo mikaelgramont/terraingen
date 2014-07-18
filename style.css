@@ -6,7 +6,11 @@
    clear: both;
 }
 
-
+body {
+  font-family: helvetica;
+  font-size: 14px;
+  line-height: 1.5em;
+}
 
 .settings {
   width: 800px;

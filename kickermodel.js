@@ -72,5 +72,5 @@ KickerModel.prototype.createCanvasRepresentation = function() {
 
 KickerModel.prototype.createWebGLRepresentation = function(imageList) {
 	console.log('creating a WebGL representation');
-	return new Representation3D(this.angle, this.arc, this.radius, this.width, imageList, config);
+	return new Representation3D(this.length, this.angle, this.arc, this.radius, this.width, imageList, config);
 };

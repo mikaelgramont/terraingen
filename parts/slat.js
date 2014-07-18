@@ -15,13 +15,11 @@ Slat.prototype.createMesh = function(width, length, thickness, scale) {
         map: THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('slat'))
     });
 	var mesh = new THREE.Mesh(geometry, material);
-
 	return mesh;
-
 };
 
 Slat.prototype.buildGeometry = function(width, length, thickness, scale) {
-	var gap = .02;
+	var gap = config.model3d.slats.space;
 	var x = (length - gap) * scale,
 		y = thickness * scale
 		z = width * scale;

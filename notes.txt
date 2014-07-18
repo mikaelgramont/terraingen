@@ -4,5 +4,7 @@ currently, animation methods keep piling on, and dimensions aren't updated.
 
 - create a group of objects:
 	- profiles (2)
-	- surface (itself a group broken down into n slats of fixed width)
+	- surface
 	- 2x4s (2 for the front, and one every x units under the surface)
+
+- stop passing scale around, it should not exist.

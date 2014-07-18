@@ -80,6 +80,11 @@ WebGLRenderer.prototype.setupGroup = function() {
 	    }
 	}
 	this.scene.add(this.group);
+	
+	var helper = new THREE.BoundingBoxHelper(this.group, 0);
+	helper.update();
+	var xOffset = (helper.box.max.x - helper.box.min.x) / 2;
+	this.group.translateX(xOffset);
 };
 
 WebGLRenderer.prototype.addPart = function(part) {

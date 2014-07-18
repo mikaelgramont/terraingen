@@ -19,10 +19,7 @@ Side.prototype.createMesh = function(points, offset) {
 
 Side.prototype.buildGeometry = function(points, offset) { 
 	var i, l;
-	const WALL_WIDTH = 2.0;
-
 	var rectShape = new THREE.Shape();
-
     var scale = 60;
 	var maxX = -Infinity,
 		minX = Infinity,
@@ -37,7 +34,7 @@ Side.prototype.buildGeometry = function(points, offset) {
 	}
 
 	var extrudeSettings = {
-		amount: WALL_WIDTH,
+		amount: config.model3d.sides.thickness,
 		bevelSize: 0,
 		bevelSegments: 1,
 		bevelThickness: 0
@@ -84,18 +81,12 @@ Side.prototype.buildGeometry = function(points, offset) {
 	    geometry.faceVertexUvs[0].push(mappedVertices);
 	}
 
-	// Center the geometry, and apply the offset.
-	geometry.computeBoundingBox();
-
-	var middle = new THREE.Vector3()
-	// middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
-	//middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
-	// middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
-
-    var delta = middle.negate().add(offset);
+	// Compensate for the extrusion amount, and move the whole shape by offset.
+	var delta = new THREE.Vector3();
+	delta.z = -config.model3d.sides.thickness / 2;
+    delta = delta.add(offset);
 	geometry.vertices.forEach(function(vertex) {
       vertex.add(delta);
 	});
-
- 	return geometry;
+	return geometry;
 };
