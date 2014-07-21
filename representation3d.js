@@ -7,6 +7,7 @@ var Representation3D = function(length, angle, arc, radius, width, imageList, co
 	this.parts.sideR = new Side(this.points, offset.negate(), imageList);
 	// this.parts.slats = this.buildSlats(width, angle, arc, radius,);
 	this.parts.struts = this.buildStruts(length, width, angle, arc, radius);
+	this.parts.surface = this.buildSurface(this.points, width);
 };
 
 Representation3D.prototype.getParts = function() {
@@ -41,17 +42,22 @@ Representation3D.prototype.calculateSidePoints = function(angle, radius, config)
 };
 
 Representation3D.prototype.buildStruts = function(length, width, angle, arc, radius) {
-	// Build a list of {x,z,rotation}
 	var scale = 60;
 	var struts = [];
 	var strutWidth = width;
 	var strutsCount = Math.ceil(arc / config.model3d.struts.maximumDistance);
 	var i = strutsCount;
-	var smallStrutSide 
+	var smallStrutSide;
+	var thickness = config.model3d.struts.side;
+
+	// We need to move the struts back a bit so they sit flush with the end
+	// of the ramp.
+	var offsetAngle = thickness * scale / (2 * arc) * Math.PI / 180;
+
+
 	while(i) {
-		var thickness = config.model3d.struts.side;
 		var currentAngle = angle * i / strutsCount;
-		var currentAngleRad = currentAngle * Math.PI / 180;
+		var currentAngleRad = currentAngle * Math.PI / 180 - offsetAngle;
 		var x = radius * Math.sin(currentAngleRad) * scale;
 		var y = radius * (1 - Math.cos(currentAngleRad)) * scale;
 
@@ -69,7 +75,8 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 			strutWidth, thickness, currentAngle, offset, this.imageList
 		);
 		strut.mesh.rotation.z = currentAngleRad;
-		strut.mesh.position.y -= currentAngleRad;
+		strut.mesh.position.y -= thickness;		
+
 		struts.push(strut);
 		i--;
 	}
@@ -92,6 +99,12 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 	struts.push(strut);
 
 	return struts;
+};
+
+Representation3D.prototype.buildSurface = function(points, width) {
+	var surfaceWidth = width + 2 * config.model3d.sides.thickness / 60;
+	var surface = new Surface(points, surfaceWidth, this.imageList);
+	return surface;	
 };
 
 Representation3D.prototype.buildSlats = function(width, angle, arc, radius) {
