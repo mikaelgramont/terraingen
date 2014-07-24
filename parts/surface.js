@@ -54,8 +54,7 @@ Surface.prototype.buildGeometry = function(points, width) {
  		vertex.add(offset);
 	});	
 
-	// This does not map the texture along the correct axes:
-	Utils.setupUVMapping(geometry);
+	Utils.setupUVMapping(geometry, 'z', 'y');
 
 	return geometry;
 };
