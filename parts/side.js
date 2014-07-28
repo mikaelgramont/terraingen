@@ -22,11 +22,10 @@ Side.prototype.createMesh = function(points, offset) {
 Side.prototype.buildGeometry = function(points, offset) { 
 	var i, l;
 	var rectShape = new THREE.Shape();
-    var scale = 60;
 
-	rectShape.moveTo(points[0][0] * scale, points[0][1] * scale);
+	rectShape.moveTo(points[0][0], points[0][1]);
 	for (i = 1, l = points.length; i < l; i++) {
-		rectShape.lineTo(points[i][0] * scale, points[i][1] * scale);
+		rectShape.lineTo(points[i][0], points[i][1]);
 	}
 
 	var extrudeSettings = {

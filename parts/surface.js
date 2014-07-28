@@ -19,7 +19,6 @@ Surface.prototype.createMesh = function(points, width) {
 
 Surface.prototype.buildGeometry = function(points, width) {
 	var rectShape = new THREE.Shape();
-	var scale = 60;
 	var thickness = config.model3d.surface.thickness;
 
 	var i;
@@ -33,20 +32,20 @@ Surface.prototype.buildGeometry = function(points, width) {
 		points.push([points[i][0], points[i][1] + thickness]);
 	}
 
-	rectShape.moveTo(points[0][0] * scale, points[0][1] * scale);
+	rectShape.moveTo(points[0][0], points[0][1]);
 	for (i = 0, l = points.length; i < l; i++) {
-		rectShape.lineTo(points[i][0] * scale, points[i][1] * scale);
+		rectShape.lineTo(points[i][0], points[i][1]);
 	}
 
 	var extrudeSettings = {
-		amount: width * scale,
+		amount: width,
 		bevelSize: 0,
 		bevelSegments: 1,
 		bevelThickness: 0
 	};
 	var geometry = new THREE.ExtrudeGeometry(rectShape, extrudeSettings);
 
-	var offset = new THREE.Vector3(0, 0, - scale * width / 2);
+	var offset = new THREE.Vector3(0, 0, - width / 2);
 	geometry.vertices.forEach(function(vertex) {
  		vertex.add(offset);
 	});	

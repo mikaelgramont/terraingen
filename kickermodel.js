@@ -57,7 +57,7 @@ KickerModel.prototype.calculateSidePoints = function(angle, radius, config) {
 	// The first point is calculated outside of the loop because it must
 	// account for a minimum height of the sides, otherwise it looks too
 	// 'perfect': you can't build something that thin.
-	var minY = .01;
+	var minY = config.model3d.sides.minHeight;
 	var minX = Math.acos(1 - minY / radius);
 	points.push([minX, minY]); 
 

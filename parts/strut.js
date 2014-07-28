@@ -2,7 +2,7 @@ var Strut = function(width, thickness, currentAngle, offset, visibility, imageLi
 	this.length = length;
 	this.thickness = thickness;
 	this.imageList = imageList;
-	this.mesh = this.createMesh(width, thickness, 60);
+	this.mesh = this.createMesh(width, thickness);
 	this.setVisible(visibility);
 
 	var angleRad = 0;
@@ -11,8 +11,8 @@ var Strut = function(width, thickness, currentAngle, offset, visibility, imageLi
 };
 Strut.prototype = new Part();
 
-Strut.prototype.createMesh = function(width, thickness, scale) {
-	var geometry = this.buildGeometry(width, thickness, scale);
+Strut.prototype.createMesh = function(width, thickness) {
+	var geometry = this.buildGeometry(width, thickness);
 	var material = new THREE.MeshLambertMaterial({
         map: THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('strut'))
     });
@@ -20,10 +20,10 @@ Strut.prototype.createMesh = function(width, thickness, scale) {
 	return mesh;
 };
 
-Strut.prototype.buildGeometry = function(width, thickness, scale) {
-	var x = thickness * scale,
-		y = thickness * scale
-		z = width * scale;
+Strut.prototype.buildGeometry = function(width, thickness) {
+	var x = thickness,
+		y = thickness
+		z = width;
 	var geometry = new THREE.BoxGeometry(x, y, z);
 	var offset = new THREE.Vector3(0, -y/2, 0);
 	geometry.vertices.forEach(function(vertex) {

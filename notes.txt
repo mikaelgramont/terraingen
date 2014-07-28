@@ -1,6 +1,5 @@
 TODO
-- stop passing scale around, it should not exist.
-- center the group and let it be animated properly.
 - perhaps determine the center of gravity and place the center there.
 - maybe use box 2d to drop the kicker in place, and create a cloud of smoke with particles.
 - build an SVG renderer and representation with lengths displayed.
+- apply grass around. http://www.threejsgames.com/extensions/#threex.grass

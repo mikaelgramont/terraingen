@@ -5,7 +5,6 @@ var WebGLRenderer = function(canvasEl, representation, pubsub) {
 	this.canvasEl = canvasEl;
 	this.representation = representation;
 	this.pubsub = pubsub;
-	this.yRotation = Math.PI;
 	this.parts = null;
 	this.init();
 
@@ -31,10 +30,10 @@ WebGLRenderer.prototype.stop = function() {
 
 WebGLRenderer.prototype.init = function() {
 	var aspectRatio = this.canvasEl.clientWidth / this.canvasEl.clientHeight;
-	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 1000);
+	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 100);
 	this.camera.position.x = 0;
-	this.camera.position.y = 0;
-	this.camera.position.z = 350;
+	this.camera.position.y = 1.5;
+	this.camera.position.z = 5;
 
 	this.scene = new THREE.Scene();
 
@@ -58,25 +57,25 @@ WebGLRenderer.prototype.init = function() {
 
 	this.setupGroup();
 
-	this.scene.add(new THREE.AxisHelper(120));
-	//this.scene.add(new THREE.GridHelper(100,10));
+	this.scene.add(new THREE.AxisHelper(1));
+	this.scene.add(new THREE.GridHelper(100,2));
 
-	// this.scene.add(new THREEx.GrassGround({
-	// 	width: 1000,
-	// 	height: 1000,
-	// 	repeatX: 5,
-	// 	repeatY: 5,
-	// }));
+	this.scene.add(new THREEx.GrassGround({
+		width: 40,
+		height: 40,
+		repeatX: 8,
+		repeatY: 8,
+	}));
 };
 
 	
 WebGLRenderer.prototype.setupGroup = function() {
-	var parts = this.representation.getParts();
-	this.group = new THREE.Object3D();
+	// meshGroup contains meshes.
+	// group contains meshGroup and an axis, and is the object
+	// meant to be moved around.
 
-	var addSubPart = function(subPart) {
-		this.group.add(subPart.mesh);	
-	}
+	this.meshGroup = new THREE.Object3D();
+	var parts = this.representation.getParts();
 	for (var part in parts) {
 	    if (parts.hasOwnProperty(part)) {
 	    	if (Array.isArray(parts[part])) {
@@ -86,26 +85,29 @@ WebGLRenderer.prototype.setupGroup = function() {
 		    }
 	    }
 	}
-	this.scene.add(this.group);
-	// window.group = this.group;
-	
-	var helper = new THREE.BoundingBoxHelper(this.group, 0);
+	var helper = new THREE.BoundingBoxHelper(this.meshGroup, 0);
 	helper.update();
-	var xOffset = (helper.box.max.x - helper.box.min.x) / 2;
-	this.group.translateX(xOffset);
+	var xOffset = (helper.box.max.x + helper.box.min.x) * .7;
+	this.meshGroup.translateX(-xOffset);
+	var yOffset = (helper.box.max.y + helper.box.min.y) * .5;
+	this.meshGroup.translateY(-yOffset);
+
+	this.group = new THREE.Object3D();
+	this.group.add(new THREE.AxisHelper(1));
+	this.group.add(this.meshGroup);
+	this.group.translateY(yOffset);
+
+	this.scene.add(this.group);	
 };
 
 WebGLRenderer.prototype.addPart = function(part) {
-	this.group.add(part.mesh);	
+	this.meshGroup.add(part.mesh);	
 }
 
 WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
 	this.rafId = requestAnimationFrame(animate);
-
-	this.group.rotation.y = this.yRotation;
 	this.draw();
-	//this.yRotation += .005;
 };
 
 WebGLRenderer.prototype.draw = function() {
