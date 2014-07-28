@@ -4,6 +4,7 @@ var Kicker = function(model, pubsub) {
 	this.pubsub = pubsub;
 	this.renderers = [];
 	this.pubsub.subscribe('trigger-recalc', this.updateRendererRepresentations.bind(this));
+	this.pubsub.subscribe('trigger-redraw', this.redraw.bind(this));
 };
 
 Kicker.prototype.clearRenderers = function() {
@@ -27,6 +28,12 @@ Kicker.prototype.updateRendererRepresentations = function() {
 	var model = this.model;
 	this.renderers.forEach(function(renderer){
 		renderer.updateRepresentation(model);
+	});
+};
+
+Kicker.prototype.redraw = function(params) {
+	this.renderers.forEach(function(renderer){
+		renderer.redraw(params.visibility);
 	});
 };
 

@@ -1,13 +1,14 @@
-var Representation3D = function(length, angle, arc, radius, width, imageList, config) {
+var Representation3D = function(length, angle, arc, radius, width, imageList, config, visibilities) {
 	this.parts = {};
 	this.imageList = imageList;
 	this.points = this.calculateSidePoints(angle, radius, config);
 	var offset = new THREE.Vector3(0, 0, width / 2 * 60);
-	this.parts.sideL = new Side(this.points, offset, imageList);
-	this.parts.sideR = new Side(this.points, offset.negate(), imageList);
-	// this.parts.slats = this.buildSlats(width, angle, arc, radius,);
-	this.parts.struts = this.buildStruts(length, width, angle, arc, radius);
-	this.parts.surface = this.buildSurface(this.points, width);
+	this.parts.sideR = new Side(this.points, offset, true, imageList);
+	this.parts.sideL = new Side(this.points, offset.negate(), true, imageList);
+	// this.parts.slats = this.buildSlats(width, angle, arc, radius);
+	this.parts.struts = this.buildStruts(length, width, angle, arc, radius, true);
+	this.parts.surface = this.buildSurface(this.points, width, true);
+	window.parts = this.parts;
 };
 
 Representation3D.prototype.getParts = function() {
@@ -41,7 +42,7 @@ Representation3D.prototype.calculateSidePoints = function(angle, radius, config)
 	return points;
 };
 
-Representation3D.prototype.buildStruts = function(length, width, angle, arc, radius) {
+Representation3D.prototype.buildStruts = function(length, width, angle, arc, radius, visibility) {
 	var scale = 60;
 	var struts = [];
 	var strutWidth = width;
@@ -72,7 +73,7 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 
 		var offset = new THREE.Vector3(x, y, 0);
 		var strut = new Strut(
-			strutWidth, thickness, currentAngle, offset, this.imageList
+			strutWidth, thickness, currentAngle, offset, visibility, this.imageList
 		);
 		strut.mesh.rotation.z = currentAngleRad;
 		strut.mesh.position.y -= thickness;		
@@ -89,21 +90,21 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 		0
 	);
 	var strut = new Strut(
-		strutWidth, thickness, 0, offset, this.imageList
+		strutWidth, thickness, 0, offset, visibility, this.imageList
 	);
 	struts.push(strut);
 	offset = new THREE.Vector3(length * scale * 2 / 3, thickness * scale, 0);
 	var strut = new Strut(
-		strutWidth, thickness, 0, offset, this.imageList
+		strutWidth, thickness, 0, offset, visibility, this.imageList
 	);
 	struts.push(strut);
 
 	return struts;
 };
 
-Representation3D.prototype.buildSurface = function(points, width) {
+Representation3D.prototype.buildSurface = function(points, width, visibility) {
 	var surfaceWidth = width + 2 * config.model3d.sides.thickness / 60;
-	var surface = new Surface(points, surfaceWidth, this.imageList);
+	var surface = new Surface(points, surfaceWidth, visibility, this.imageList);
 	return surface;	
 };
 
@@ -137,7 +138,7 @@ Representation3D.prototype.buildSlats = function(width, angle, arc, radius) {
 		offset = new THREE.Vector3(x, y , 0);
 
 		slats.push(new Slat(
-			width + .125, slatLength, thickness, currentAngle, offset, this.imageList
+			width + .125, slatLength, thickness, currentAngle, offset, visibility, this.imageList
 		));
 		i--;
 	}

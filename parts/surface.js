@@ -1,17 +1,14 @@
-var Surface = function(points, width, imageList) {
+var Surface = function(points, width, visibility, imageList) {
 	this.points = points;
 	this.width = width;
 	this.imageList = imageList;
 	this.mesh = this.createMesh(points, width);
+	this.setVisible(visibility);
 };
+Surface.prototype = new Part();
 
 Surface.prototype.createMesh = function(points, width) {
-	var ownPoints = [];
-	points.forEach(function(point){
-		ownPoints.push(point);
-	});
-
-	var geometry = this.buildGeometry(ownPoints, width);
+	var geometry = this.buildGeometry(points, width);
 	var woodMap = THREE.ImageUtils.loadTexture(this.imageList.getImageUrl('side'));
 	var material = new THREE.MeshLambertMaterial({
         map: woodMap

@@ -18,7 +18,6 @@ KickerModel.prototype.updateDimensions = function(dimensions) {
 	this.length = this.calculateLength(this.height, this.angle);
 	this.arc = this.calculateArc(this.radius, this.angle);
 
-	console.log('KickerModel.prototype.updateDimensions');
 	this.pubsub.publish("update-view", {
 		'height': this.height,
 		'width': this.width,
@@ -71,6 +70,7 @@ KickerModel.prototype.createCanvasRepresentation = function() {
 };
 
 KickerModel.prototype.createWebGLRepresentation = function(imageList) {
+	var visibilities = {};
 	console.log('creating a WebGL representation');
-	return new Representation3D(this.length, this.angle, this.arc, this.radius, this.width, imageList, config);
+	return new Representation3D(this.length, this.angle, this.arc, this.radius, this.width, imageList, config, visibilities);
 };

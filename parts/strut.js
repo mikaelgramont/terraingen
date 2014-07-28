@@ -1,13 +1,15 @@
-var Strut = function(width, thickness, currentAngle, offset, imageList) {
+var Strut = function(width, thickness, currentAngle, offset, visibility, imageList) {
 	this.length = length;
 	this.thickness = thickness;
 	this.imageList = imageList;
 	this.mesh = this.createMesh(width, thickness, 60);
+	this.setVisible(visibility);
 
 	var angleRad = 0;
 	this.mesh.rotateOnAxis(new THREE.Vector3(0, 0, 1), angleRad);
 	this.mesh.position = offset;
 };
+Strut.prototype = new Part();
 
 Strut.prototype.createMesh = function(width, thickness, scale) {
 	var geometry = this.buildGeometry(width, thickness, scale);

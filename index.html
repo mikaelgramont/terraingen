@@ -25,9 +25,26 @@
       </div>
     </div>
 
-    <div>
-      <button id="stop">Stop</button>
-      <button id="resume" disabled>Resume</button>
+    <div class="clearfix">
+      <fieldset class="visualisation-settings">
+        <legend>Visibility</legend>
+        <input type="checkbox" checked id="surface-visibility" class="trigger-redraw">
+        <label for="surface-visibility">Surface</label> 
+
+        <input type="checkbox" checked id="struts-visibility" class="trigger-redraw">
+        <label for="struts-visibility">Struts</label> 
+
+        <input type="checkbox" checked id="left-side-visibility" class="trigger-redraw">
+        <label for="left-side-visibility">Left side</label> 
+
+        <input type="checkbox" checked id="right-side-visibility" class="trigger-redraw">
+        <label for="right-side-visibility">Right side</label> 
+      </fieldset>
+      <fieldset class="visualisation-settings">
+        <legend>Animation</legend>
+        <button id="stop">Stop</button>
+        <button id="resume" disabled>Resume</button>
+      </fieldset>
     </div>
 
 
@@ -45,6 +62,7 @@
     <script src="imagelist.js"></script>
     <script src="kickermodel.js"></script>
     <script src="kickerview.js"></script>
+    <script src="parts/part.js"></script>
     <script src="parts/side.js"></script>
     <script src="parts/slat.js"></script>
     <script src="parts/strut.js"></script>
@@ -76,13 +94,19 @@
           'lengthLabel': 'base-label',
           'arcLabel': 'arc-label',
           'stop': 'stop',
-          'resume': 'resume'
+          'resume': 'resume',
+          'surfaceVisibility': 'surface-visibility',
+          'strutsVisibility': 'struts-visibility',
+          'rightVisibility': 'right-side-visibility',
+          'leftVisibility': 'left-side-visibility',
         }, pubsub);
         view.publishInputValues();
 
         var kicker = new Kicker(kickerModel, pubsub);
         kicker.add3DRepresentation(document.getElementById('kicker-webgl'), imageList);
         kicker.add2DRepresentation(document.getElementById('kicker-canvas'));
+
+        view.publishVisibilities();
 
         app.addKicker(kicker);
         app.render();

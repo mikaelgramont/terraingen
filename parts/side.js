@@ -1,8 +1,10 @@
-var Side = function(points, offset, imageList) {
+var Side = function(points, offset, visibility, imageList) {
 	this.points = points;
 	this.imageList = imageList;
 	this.mesh = this.createMesh(points, offset);
+	this.setVisible(visibility);
 };
+Side.prototype = new Part();
 
 Side.prototype.createMesh = function(points, offset) {
 	var geometry = this.buildGeometry(points, offset);

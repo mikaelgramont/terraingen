@@ -16,7 +16,6 @@ App.prototype.getKickers = function() {
 }
 
 App.prototype.render = function (){
-  console.log('app - rendering');
   this.kickers.forEach(function(kicker) {
     kicker.render();
   });

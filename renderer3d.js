@@ -80,6 +80,7 @@ WebGLRenderer.prototype.setupGroup = function() {
 	    }
 	}
 	this.scene.add(this.group);
+	// window.group = this.group;
 	
 	var helper = new THREE.BoundingBoxHelper(this.group, 0);
 	helper.update();
@@ -102,6 +103,21 @@ WebGLRenderer.prototype.animate = function() {
 
 WebGLRenderer.prototype.draw = function() {
 	this.threeRenderer.render(this.scene, this.camera);
+};
+
+WebGLRenderer.prototype.redraw = function(partVisibilities) {
+	var parts = this.representation.getParts();
+	for (var partIndex in partVisibilities) {
+	    if (parts.hasOwnProperty(partIndex)) {
+	    	if (Array.isArray(parts[partIndex])) {
+	    		parts[partIndex].forEach(function(part) {
+	    			part.setVisible(partVisibilities[partIndex])
+	    		});
+	    	} else {
+		        parts[partIndex].setVisible(partVisibilities[partIndex]);
+		    }
+	    }
+	}
 };
 
 WebGLRenderer.prototype.updateRepresentation = function(model) {

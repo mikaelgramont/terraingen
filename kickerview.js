@@ -14,7 +14,8 @@ var KickerView = function(elements, pubsub) {
 		}
 	}
 
-	document.body.addEventListener("change", this.onChange.bind(this));
+	document.body.addEventListener("change", this.onInput.bind(this));
+	// document.body.addEventListener("click", this.onInput.bind(this));
 
 	this.elements['stop'].addEventListener("click", this.stop.bind(this));
 	this.elements['resume'].addEventListener("click", this.resume.bind(this));
@@ -48,9 +49,15 @@ KickerView.prototype.updateView = function(updates) {
 	}
 };
 
-KickerView.prototype.onChange = function(e) {
+KickerView.prototype.onInput = function(e) {
 	if (e.target.classList.contains("trigger-recalc")) {
 		this.publishInputValues();
+		this.publishVisibilities();
+		e.stopPropagation();
+	}
+	if (e.target.classList.contains("trigger-redraw")) {
+		this.publishVisibilities();
+		e.stopPropagation();
 	}
 };
 
@@ -59,5 +66,16 @@ KickerView.prototype.publishInputValues = function() {
 		'height': this.getElement('height').value,
 		'width': this.getElement('width').value,
 		'angle': this.getElement('angle').value,			
+	});
+};
+
+KickerView.prototype.publishVisibilities = function() {
+	this.pubsub.publish("trigger-redraw", {
+		'visibility': {
+			'surface': this.getElement('surfaceVisibility').checked,
+			'struts': this.getElement('strutsVisibility').checked,
+			'sideR': this.getElement('rightVisibility').checked,
+			'sideL': this.getElement('leftVisibility').checked
+		}			
 	});
 };
