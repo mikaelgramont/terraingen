@@ -59,7 +59,14 @@ WebGLRenderer.prototype.init = function() {
 	this.setupGroup();
 
 	this.scene.add(new THREE.AxisHelper(120));
-	this.scene.add(new THREE.GridHelper(100,10));
+	//this.scene.add(new THREE.GridHelper(100,10));
+
+	// this.scene.add(new THREEx.GrassGround({
+	// 	width: 1000,
+	// 	height: 1000,
+	// 	repeatX: 5,
+	// 	repeatY: 5,
+	// }));
 };
 
 	

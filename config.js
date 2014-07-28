@@ -1,4 +1,10 @@
 var config = {
+	'model2d': {
+		'sides': {
+			'steps': 20,
+			'extraLength': .2
+		},
+	},
 	'model3d': {
 		'sides': {
 			'steps': 20,

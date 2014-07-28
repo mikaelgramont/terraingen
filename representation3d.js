@@ -1,7 +1,7 @@
-var Representation3D = function(length, angle, arc, radius, width, imageList, config, visibilities) {
+var Representation3D = function(points, length, angle, arc, radius, width, imageList, config) {
 	this.parts = {};
 	this.imageList = imageList;
-	this.points = this.calculateSidePoints(angle, radius, config);
+	this.points = points;
 	var offset = new THREE.Vector3(0, 0, width / 2 * 60);
 	this.parts.sideR = new Side(this.points, offset, true, imageList);
 	this.parts.sideL = new Side(this.points, offset.negate(), true, imageList);
@@ -13,33 +13,6 @@ var Representation3D = function(length, angle, arc, radius, width, imageList, co
 
 Representation3D.prototype.getParts = function() {
 	return this.parts;
-};
-
-Representation3D.prototype.calculateSidePoints = function(angle, radius, config) {
-	var points = [];
-
-	var angleRad = angle * Math.PI / 180;
-	var steps = config.model3d.sides.steps;
-	var currentAngleRad, x, y;
-
-	// The first point is calculated outside of the loop because it must
-	// account for a minimum height of the sides, otherwise it looks too
-	// 'perfect': you can't build something that thin.
-	var minY = .02;
-	var minX = Math.acos(1 - minY / radius);
-	//points.push([minX, minY]); 
-
-	for (var i = 0; i <= steps; i++) {
-		currentAngleRad = i / steps * angleRad;
-		x = radius * Math.sin(currentAngleRad);
-		y = radius * (1 - Math.cos(currentAngleRad));
-		points.push([x,y]);
-	}
-	var lastPointX = x + config.model3d.sides.extraLength;
-	points.push([lastPointX, y]); 
-	points.push([lastPointX, 0]); 
-
-	return points;
 };
 
 Representation3D.prototype.buildStruts = function(length, width, angle, arc, radius, visibility) {
@@ -54,7 +27,6 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 	// We need to move the struts back a bit so they sit flush with the end
 	// of the ramp.
 	var offsetAngle = thickness * scale / (2 * arc) * Math.PI / 180;
-
 
 	while(i) {
 		var currentAngle = angle * i / strutsCount;

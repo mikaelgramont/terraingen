@@ -33,6 +33,9 @@ Kicker.prototype.updateRendererRepresentations = function() {
 
 Kicker.prototype.redraw = function(params) {
 	this.renderers.forEach(function(renderer){
+		if (!renderer.redraw) {
+			return;
+		}
 		renderer.redraw(params.visibility);
 	});
 };

@@ -47,30 +47,50 @@ KickerModel.prototype.calculateArc = function(radius, alphaDeg) {
   return arc;
 }
 
+KickerModel.prototype.calculateSidePoints = function(angle, radius, config) {
+	var points = [];
+
+	var angleRad = angle * Math.PI / 180;
+	var steps = config.model3d.sides.steps;
+	var currentAngleRad, x, y;
+
+	// The first point is calculated outside of the loop because it must
+	// account for a minimum height of the sides, otherwise it looks too
+	// 'perfect': you can't build something that thin.
+	var minY = .01;
+	var minX = Math.acos(1 - minY / radius);
+	points.push([minX, minY]); 
+
+	for (var i = 0; i <= steps; i++) {
+		currentAngleRad = i / steps * angleRad;
+		x = radius * Math.sin(currentAngleRad);
+		y = radius * (1 - Math.cos(currentAngleRad));
+		if (x < minX) {
+			x = minX;
+		}
+		if (y < minY) {
+			y = minY;
+		}
+		points.push([x,y]);
+	}
+	var lastPointX = x + config.model3d.sides.extraLength;
+	points.push([lastPointX, y]); 
+	points.push([lastPointX, 0]); 
+
+	return points;
+};
+
 KickerModel.prototype.createCanvasRepresentation = function() {
-  console.log('creating a canvas representation');
-  var points = [];
+	var points = this.calculateSidePoints(this.angle, this.radius, config);
 
-  var angleRad = this.angle * Math.PI / 180;
-  var steps = 20;
-  var currentAngleRad, x, y;
-  
-  for (var i = 0; i < steps; i++) {
-    currentAngleRad = i / steps * angleRad;
-    x = this.radius * Math.sin(currentAngleRad);
-    y = this.radius * (1 - Math.cos(currentAngleRad));
-    points.push([x,y]);
-  }
-  points.push([x + .2, y]); 
-  points.push([x + .2, 0]); 
-  points.push([0, 0]); 
-
-  // Returns a representation that is not scaled and needs to be flipped vertically.
-  return new Representation2D(points);
+	// Need to close the shape for canvas.
+	points.push([0,0]);
+	// Returns a representation that is not scaled and needs to be flipped vertically.
+	return new Representation2D(points);
 };
 
 KickerModel.prototype.createWebGLRepresentation = function(imageList) {
-	var visibilities = {};
 	console.log('creating a WebGL representation');
-	return new Representation3D(this.length, this.angle, this.arc, this.radius, this.width, imageList, config, visibilities);
+	var points = this.calculateSidePoints(this.angle, this.radius, config);
+	return new Representation3D(points, this.length, this.angle, this.arc, this.radius, this.width, imageList, config);
 };
