@@ -1,5 +1,6 @@
 TODO
-- perhaps determine the center of gravity and place the center there.
-- maybe use box 2d to drop the kicker in place, and create a cloud of smoke with particles.
+- solve the sponginess/going through ground. Maybe by lifting the kicker a bit?
+- create a helper that builds a box body given a THREE.Object3D.
+- when dropping the kicker in place, create a cloud of smoke with particles.
 - build an SVG renderer and representation with lengths displayed.
 - apply grass around. http://www.threejsgames.com/extensions/#threex.grass
