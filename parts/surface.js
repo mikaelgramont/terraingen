@@ -2,7 +2,7 @@ var Surface = function(points, width, visibility, imageList) {
 	this.points = points;
 	this.width = width;
 	this.imageList = imageList;
-	this.mesh = this.createMesh(points, width);
+	this.mesh = this.createMesh(points, width + config.model3d.sides.thickness * 2);
 	this.setVisible(visibility);
 };
 Surface.prototype = new Part();

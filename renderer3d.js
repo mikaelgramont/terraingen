@@ -6,10 +6,9 @@ var WebGLRenderer = function(canvasEl, representation, pubsub) {
 	this.representation = representation;
 	this.pubsub = pubsub;
 	this.parts = null;
-	this.lookAtKicker = false;
+	this.lookAtKicker = true;
 	this.init();
 	this.initPhysics();
-	this.setupOrbitControl();
 
 	// requestAnimationFrame id.
 	this.rafId = null;
@@ -17,6 +16,56 @@ var WebGLRenderer = function(canvasEl, representation, pubsub) {
 	this.pubsub.subscribe("stop-rendering", this.stop.bind(this));
 	this.pubsub.subscribe("step-rendering", this.step.bind(this));
 	this.pubsub.subscribe("resume-rendering", this.render.bind(this));
+};
+
+WebGLRenderer.prototype.render = function() {
+	console.log('WebGLRenderer - rendering');
+	if (!this.rafId) {
+		this.animate();
+	}
+}
+
+WebGLRenderer.prototype.stop = function() {
+	console.log('WebGLRenderer - stopping rendering');
+	cancelAnimationFrame(this.rafId);
+	this.rafId = null;
+}
+
+WebGLRenderer.prototype.init = function() {
+	var aspectRatio = this.canvasEl.clientWidth / this.canvasEl.clientHeight;
+	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 100);
+	this.camera.position.x = 3;
+	this.camera.position.y = 3;
+	this.camera.position.z = 8;
+
+	this.scene = new THREE.Scene();
+
+	var light = new THREE.DirectionalLight(0xffffff);
+	light.position.set(300, 10, 300);
+	this.scene.add(light);
+
+	var light2 = new THREE.DirectionalLight(0xffffff);
+	light2.position.set(-100, 200, -120);
+	this.scene.add(light2);
+
+	this.threeRenderer = new THREE.WebGLRenderer({
+		antialias: true,
+		canvas: this.canvasEl
+	});
+	this.threeRenderer.setClearColor(0xf0f0f0);
+	this.threeRenderer.setSize(
+	this.canvasEl.clientWidth, this.canvasEl.clientHeight);
+
+	this.scene.add(new THREE.AxisHelper(1));
+	this.scene.add(new THREE.GridHelper(100,2));
+	this.scene.add(new THREEx.GrassGround({
+		width: 40,
+		height: 40,
+		repeatX: 8,
+		repeatY: 8,
+	}));
+
+	this.setupGroup();	
 };
 
 WebGLRenderer.prototype.initPhysics = function() {
@@ -40,26 +89,25 @@ WebGLRenderer.prototype.initPhysics = function() {
 	world.add(groundBody);
 
 	// Kicker Box
-	var boxBody = Utils.createBoxBodyFromMesh(this.group, 20);
-	boxBody.position = new CANNON.Vec3(0, 0, 0);
-	// boxBody.quaternion.setFromAxisAngle(
-	// 	new CANNON.Vec3(0,1,0), Math.PI / 180 * -15);
+	var boxBody = Utils.createBoxBodyFromMesh(this.group, 50);
+	boxBody.position = new CANNON.Vec3(0, 2, 0);
+	boxBody.velocity = new CANNON.Vec3(0, 0, 0);
+	boxBody.quaternion.setFromAxisAngle(
+	 	new CANNON.Vec3(0,.8,-.5), Math.PI / 180 * 35);
 	var boxMat = new CANNON.Material();
 	boxBody.material = boxMat;
 	world.add(boxBody);
 
 	// Materials
 	var friction = 0.0;
-	var restitution = 0;
+	var restitution = .2;
 	var kickerGroundContact = new CANNON.ContactMaterial(
 		groundMat, boxMat, friction, restitution);
-	kickerGroundContact.contactEquationStiffness = 1e10;
-	kickerGroundContact.contactEquationRegularizationTime =3;	
+	kickerGroundContact.contactEquationStiffness = 1e6;
+	kickerGroundContact.contactEquationRegularizationTime = 10;	
 	world.addContactMaterial(kickerGroundContact);
 
 	this.boxBody = boxBody;
-	Utils.makeAvailableForDebug('boxBody', this.boxBody);
-	Utils.makeAvailableForDebug('groundBody', groundBody);
 	this.world = world;
 
 	var onCollision = this.setupOrbitControl.bind(this);
@@ -67,67 +115,17 @@ WebGLRenderer.prototype.initPhysics = function() {
 		console.log("collision", e)
 		onCollision();
 	});
-};
-
-
-WebGLRenderer.prototype.render = function() {
-	console.log('WebGLRenderer - rendering');
-	if (!this.rafId) {
-		this.animate();
-	}
-}
-
-WebGLRenderer.prototype.stop = function() {
-	console.log('WebGLRenderer - stopping rendering');
-	cancelAnimationFrame(this.rafId);
-	this.rafId = null;
-}
-
-WebGLRenderer.prototype.init = function() {
-	var aspectRatio = this.canvasEl.clientWidth / this.canvasEl.clientHeight;
-	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 100);
-	this.camera.position.x = 3;
-	this.camera.position.y = 1.6;
-	this.camera.position.z = 7;
-	// window.camera = this.camera;
-
-	this.scene = new THREE.Scene();
-
-	var light = new THREE.DirectionalLight(0xffffff);
-	light.position.set(300, 10, 300);
-	this.scene.add(light);
-
-	var light2 = new THREE.DirectionalLight(0xffffff);
-	light2.position.set(-100, 200, -120);
-	this.scene.add(light2);
-
-	this.threeRenderer = new THREE.WebGLRenderer({
-		antialias: true,
-		canvas: this.canvasEl
-	});
-	this.threeRenderer.setClearColor(0xf0f0f0);
-	this.threeRenderer.setSize(
-	this.canvasEl.clientWidth, this.canvasEl.clientHeight);
-
-	this.setupGroup();
-
-	this.scene.add(new THREE.AxisHelper(1));
-	this.scene.add(new THREE.GridHelper(100,2));
-
-	this.scene.add(new THREEx.GrassGround({
-		width: 40,
-		height: 40,
-		repeatX: 8,
-		repeatY: 8,
-	}));
+	Utils.makeAvailableForDebug('boxBody', this.boxBody);
+	Utils.makeAvailableForDebug('groundBody', groundBody);
 };
 
 WebGLRenderer.prototype.setupOrbitControl = function() {
-	if (this.orbitControls) {
+	if (!this.lookAtKicker) {
 		return;
 	}
 	this.lookAtKicker = false;
 	this.orbitControls = new THREE.OrbitControls(this.camera, this.canvasEl);
+	this.orbitControls.target = this.cameraTarget;
 }
 
 WebGLRenderer.prototype.setupGroup = function() {
@@ -144,7 +142,7 @@ WebGLRenderer.prototype.setupGroup = function() {
 
 	Utils.iterateOverParts(parts, function(part) {
 		part.mesh.translateX(xOffset);
-		part.mesh.translateX(yOffset);
+		part.mesh.translateY(yOffset);
 	});
 	Utils.makeAvailableForDebug('group', this.group);
 };
@@ -160,17 +158,18 @@ WebGLRenderer.prototype.animate = function() {
 };
 
 WebGLRenderer.prototype.step = function() {
-	//this.updatePhysics();
+	this.updatePhysics();
 	this.draw();
 };
 
 WebGLRenderer.prototype.updatePhysics = function() {
 	this.world.step(1/60);
-	this.group.position = this.boxBody.position;
-	this.group.quaternion = this.boxBody.quaternion;
+	this.boxBody.position.copy(this.group.position);
+	this.boxBody.quaternion.copy(this.group.quaternion);
 
 	if (this.lookAtKicker) {
-		this.camera.lookAt(this.group.position);
+		this.cameraTarget = this.group.position.add(new THREE.Vector3(0,1,0));
+		this.camera.lookAt(this.cameraTarget);
 	}
 };
 
@@ -197,4 +196,5 @@ WebGLRenderer.prototype.updateRepresentation = function(model) {
 	this.representation = model.createWebGLRepresentation(this.representation.imageList);
 	this.scene.remove(this.group);
 	this.setupGroup();
+	this.initPhysics();
 };

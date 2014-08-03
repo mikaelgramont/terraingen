@@ -13,7 +13,7 @@ var config = {
 		},
 		'struts': {
 			'side': .06,
-			'smallSide': .20,
+			'smallSide': .02,
 			'maximumDistance': .4
 		},
 		'surface': {

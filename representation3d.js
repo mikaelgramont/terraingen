@@ -24,12 +24,12 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 	var thickness = config.model3d.struts.side;
 
 	// We need to move the struts back a bit so they sit flush with the end
-	// of the ramp.
-	var offsetAngle = thickness  / (2 * arc) * Math.PI / 180;
+	// of the ramp. 
+	var offsetAngleRad = thickness / (2 * radius);
 
 	while(i) {
 		var currentAngle = angle * i / strutsCount;
-		var currentAngleRad = currentAngle * Math.PI / 180 - offsetAngle;
+		var currentAngleRad = currentAngle * Math.PI / 180 - offsetAngleRad;
 		var x = radius * Math.sin(currentAngleRad);
 		var y = radius * (1 - Math.cos(currentAngleRad));
 
@@ -42,13 +42,11 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 			break;
 		} 
 
-		var offset = new THREE.Vector3(x, y, 0);
+		var offset = new THREE.Vector3(0, 0, 0);
 		var strut = new Strut(
 			strutWidth, thickness, currentAngle, offset, visibility, this.imageList
 		);
-		strut.mesh.rotation.z = currentAngleRad;
-		strut.mesh.position.y -= thickness;		
-
+		strut.positionByAngle(radius, currentAngleRad);
 		struts.push(strut);
 		i--;
 	}
@@ -63,11 +61,13 @@ Representation3D.prototype.buildStruts = function(length, width, angle, arc, rad
 	var strut = new Strut(
 		strutWidth, thickness, 0, offset, visibility, this.imageList
 	);
+	strut.mesh.position = offset;
 	struts.push(strut);
 	offset = new THREE.Vector3(length * 2 / 3, thickness, 0);
 	var strut = new Strut(
 		strutWidth, thickness, 0, offset, visibility, this.imageList
 	);
+	strut.mesh.position = offset;
 	struts.push(strut);
 
 	return struts;

@@ -40,7 +40,7 @@ Side.prototype.buildGeometry = function(points, offset) {
 
 	// Compensate for the extrusion amount, and move the whole shape by offset.
 	var delta = new THREE.Vector3();
-	delta.z = -config.model3d.sides.thickness / 2;
+	delta.z = - config.model3d.sides.thickness / 2;
     delta = delta.add(offset);
 	geometry.vertices.forEach(function(vertex) {
       vertex.add(delta);
