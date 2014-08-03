@@ -6,14 +6,16 @@ var WebGLRenderer = function(canvasEl, representation, pubsub) {
 	this.representation = representation;
 	this.pubsub = pubsub;
 	this.parts = null;
-	this.lookAtKicker = true;
+	this.lookAtKicker = false;
 	this.init();
 	this.initPhysics();
+	this.setupOrbitControl();
 
 	// requestAnimationFrame id.
 	this.rafId = null;
 
 	this.pubsub.subscribe("stop-rendering", this.stop.bind(this));
+	this.pubsub.subscribe("step-rendering", this.step.bind(this));
 	this.pubsub.subscribe("resume-rendering", this.render.bind(this));
 };
 
@@ -21,24 +23,27 @@ WebGLRenderer.prototype.initPhysics = function() {
 	var world = new CANNON.World();
 	world.defaultContactMaterial.contactEquationStiffness = 5e7;
 	world.defaultContactMaterial.contactEquationRegularizationTime = 4;
-	world.gravity.set(0, 0, -9.81);
+	world.gravity.set(0, -9.81, 0);
 	world.broadphase = new CANNON.NaiveBroadphase();
-	world.solver.iterations = 20;
+	world.solver.iterations = 10;
 	world.solver.tolerance = 0;
 
 	// Ground plane
 	var groundShape = new CANNON.Plane();
 	var groundBody = new CANNON.RigidBody(0, groundShape);
 	groundBody.position = new CANNON.Vec3(0, 0, 0);
+	// Need to rotate the plane as it is vertical by default.
+	groundBody.quaternion.setFromAxisAngle(
+	  new CANNON.Vec3(1, 0, 0), - Math.PI / 2);
 	var groundMat = new CANNON.Material();
 	groundBody.material = groundMat;
 	world.add(groundBody);
 
 	// Kicker Box
-	var box = new CANNON.Box(new CANNON.Vec3(5, .65, 0));
-	var boxBody = new CANNON.RigidBody(30, box);
-	boxBody.position = new CANNON.Vec3(0, 0, 10);
-	boxBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI / 180 * -15);
+	var boxBody = Utils.createBoxBodyFromMesh(this.group, 20);
+	boxBody.position = new CANNON.Vec3(0, 0, 0);
+	// boxBody.quaternion.setFromAxisAngle(
+	// 	new CANNON.Vec3(0,1,0), Math.PI / 180 * -15);
 	var boxMat = new CANNON.Material();
 	boxBody.material = boxMat;
 	world.add(boxBody);
@@ -46,17 +51,18 @@ WebGLRenderer.prototype.initPhysics = function() {
 	// Materials
 	var friction = 0.0;
 	var restitution = 0;
-	var kickerGroundContact = new CANNON.ContactMaterial(groundMat, boxMat,
-		friction, restitution);
+	var kickerGroundContact = new CANNON.ContactMaterial(
+		groundMat, boxMat, friction, restitution);
 	kickerGroundContact.contactEquationStiffness = 1e10;
 	kickerGroundContact.contactEquationRegularizationTime =3;	
 	world.addContactMaterial(kickerGroundContact);
 
 	this.boxBody = boxBody;
-	window.boxBody = boxBody;
+	Utils.makeAvailableForDebug('boxBody', this.boxBody);
+	Utils.makeAvailableForDebug('groundBody', groundBody);
 	this.world = world;
 
-	var onCollision = this.useOrbitControl.bind(this);
+	var onCollision = this.setupOrbitControl.bind(this);
 	boxBody.addEventListener("collide", function(e) {
 		console.log("collision", e)
 		onCollision();
@@ -72,7 +78,7 @@ WebGLRenderer.prototype.render = function() {
 }
 
 WebGLRenderer.prototype.stop = function() {
-	console.log('WebGLRenderer - rendering');
+	console.log('WebGLRenderer - stopping rendering');
 	cancelAnimationFrame(this.rafId);
 	this.rafId = null;
 }
@@ -116,62 +122,56 @@ WebGLRenderer.prototype.init = function() {
 	}));
 };
 
-WebGLRenderer.prototype.useOrbitControl = function() {
-	if (!this.lookAtKicker) {
+WebGLRenderer.prototype.setupOrbitControl = function() {
+	if (this.orbitControls) {
 		return;
 	}
 	this.lookAtKicker = false;
 	this.orbitControls = new THREE.OrbitControls(this.camera, this.canvasEl);
 }
-	
-WebGLRenderer.prototype.setupGroup = function() {
-	// meshGroup contains meshes.
-	// group contains meshGroup and an axis, and is the object
-	// meant to be moved around.
 
+WebGLRenderer.prototype.setupGroup = function() {
 	this.group = new THREE.Object3D();
+	this.scene.add(this.group);
+
 	var parts = this.representation.getParts();
-	for (var part in parts) {
-	    if (parts.hasOwnProperty(part)) {
-	    	if (Array.isArray(parts[part])) {
-	    		parts[part].forEach(this.addPart.bind(this));
-	    	} else {
-		        this.addPart(parts[part]);
-		    }
-	    }
-	}
+	Utils.iterateOverParts(parts, this.addPart.bind(this));
+	
 	var helper = new THREE.BoundingBoxHelper(this.group, 0);
 	helper.update();
-	var xOffset = (helper.box.max.x + helper.box.min.x);
-	this.group.translateX(xOffset);
-	// var yOffset = (helper.box.max.y + helper.box.min.y) * .5;
-	// this.group.translateY(-yOffset);
-	this.scene.add(this.group);
-	window.group = this.group;
+	var xOffset = - (helper.box.max.x + helper.box.min.x) / 2;
+	var yOffset = - (helper.box.max.y + helper.box.min.y) / 2;
+
+	Utils.iterateOverParts(parts, function(part) {
+		part.mesh.translateX(xOffset);
+		part.mesh.translateX(yOffset);
+	});
+	Utils.makeAvailableForDebug('group', this.group);
 };
 
 WebGLRenderer.prototype.addPart = function(part) {
 	this.group.add(part.mesh);	
 }
-var ii = 0;
+
 WebGLRenderer.prototype.animate = function() {
 	var animate = this.animate.bind(this);
 	this.rafId = requestAnimationFrame(animate);
+	this.step();
+};
+
+WebGLRenderer.prototype.step = function() {
+	//this.updatePhysics();
+	this.draw();
+};
+
+WebGLRenderer.prototype.updatePhysics = function() {
 	this.world.step(1/60);
-	this.group.position.x = this.boxBody.position.x;
-	this.group.position.y = this.boxBody.position.z;
-	this.group.position.z = this.boxBody.position.y;
+	this.group.position = this.boxBody.position;
+	this.group.quaternion = this.boxBody.quaternion;
 
 	if (this.lookAtKicker) {
 		this.camera.lookAt(this.group.position);
 	}
-
-	this.group.quaternion.x = this.boxBody.quaternion.x;
-	this.group.quaternion.y = this.boxBody.quaternion.z;
-	this.group.quaternion.z = this.boxBody.quaternion.y;
-	this.group.quaternion.w = this.boxBody.quaternion.w;
-
-	this.draw();
 };
 
 WebGLRenderer.prototype.draw = function() {

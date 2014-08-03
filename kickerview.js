@@ -15,9 +15,9 @@ var KickerView = function(elements, pubsub) {
 	}
 
 	document.body.addEventListener("change", this.onInput.bind(this));
-	// document.body.addEventListener("click", this.onInput.bind(this));
 
 	this.elements['stop'].addEventListener("click", this.stop.bind(this));
+	this.elements['step'].addEventListener("click", this.step.bind(this));
 	this.elements['resume'].addEventListener("click", this.resume.bind(this));
 
 	this.pubsub.subscribe("update-view", this.updateView.bind(this));
@@ -26,12 +26,18 @@ var KickerView = function(elements, pubsub) {
 KickerView.prototype.stop = function() {
 	this.pubsub.publish("stop-rendering");
 	this.elements['stop'].disabled = true;
+	this.elements['step'].disabled = false;
 	this.elements['resume'].disabled = false;
+};
+
+KickerView.prototype.step = function() {
+	this.pubsub.publish("step-rendering");
 };
 
 KickerView.prototype.resume = function() {
 	this.pubsub.publish("resume-rendering");
 	this.elements['stop'].disabled = false;
+	this.elements['step'].disabled = true;
 	this.elements['resume'].disabled = true;
 };
 

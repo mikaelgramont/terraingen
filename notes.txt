@@ -1,6 +1,9 @@
 TODO
 - solve the sponginess/going through ground. Maybe by lifting the kicker a bit?
 - create a helper that builds a box body given a THREE.Object3D.
+- create a helper that shows where lights are.
+- create a little inspector to pick objects out of a list and move/rotate them around.
+- create a debug object that's injected into window only if DEBUG is true.
 - when dropping the kicker in place, create a cloud of smoke with particles.
 - build an SVG renderer and representation with lengths displayed.
 - apply grass around. http://www.threejsgames.com/extensions/#threex.grass

@@ -51,9 +51,46 @@ Utils.setupUVMapping = function(geometry, u, v) {
 			geometry.vertices[face.c]
 		];
 		var mappedVertices = vertices.map(function(vertex) {
-			return new THREE.Vector2((vertex[u] + rangeU / 2) / (2 * rangeU), vertex[v] / rangeV);
+			return new THREE.Vector2(
+				(vertex[u] + rangeU / 2) / (2 * rangeU),
+				vertex[v] / rangeV
+			);
 		});
 	    geometry.faceVertexUvs[0].push(mappedVertices);
 	}
+};
 
+Utils.iterateOverParts = function(parts, func) {
+	for (var partIndex in parts) {
+	    if (parts.hasOwnProperty(partIndex)) {
+	    	if (Array.isArray(parts[partIndex])) {
+	    		parts[partIndex].forEach(function(part) {
+	    			func(part);
+	    		});
+	    	} else {
+		        func(parts[partIndex], partIndex);
+		    }
+	    }
+	}
+};
+
+Utils.makeAvailableForDebug = function(k, v) {
+	window.debugInfo = window.debugInfo || {};
+	window.debugInfo[k] = v;
+}
+
+Utils.createBoxBodyFromMesh = function(mesh, mass, alignBottom) {
+	if (typeof(alignBottom) == 'undefined') {
+		alignBottom = true;
+	}
+
+	var helper = new THREE.BoundingBoxHelper(mesh, 0);
+	helper.update();
+	var x = Math.abs((helper.box.max.x - helper.box.min.x) / 2);
+	var y = Math.abs((helper.box.max.y - helper.box.min.y) / 2);	
+	var z = Math.abs((helper.box.max.z - helper.box.min.z) / 2);	
+
+	var box = new CANNON.Box(new CANNON.Vec3(x, y , z));
+	var boxBody = new CANNON.RigidBody(mass, box);
+	return boxBody;
 };

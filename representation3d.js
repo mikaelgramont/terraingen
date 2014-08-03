@@ -8,7 +8,7 @@ var Representation3D = function(points, length, angle, arc, radius, width, image
 	// this.parts.slats = this.buildSlats(width, angle, arc, radius);
 	this.parts.struts = this.buildStruts(length, width, angle, arc, radius, true);
 	this.parts.surface = this.buildSurface(this.points, width, true);
-	window.parts = this.parts;
+	Utils.makeAvailableForDebug('parts', this.parts);
 };
 
 Representation3D.prototype.getParts = function() {
@@ -108,7 +108,7 @@ Representation3D.prototype.buildSlats = function(width, angle, arc, radius) {
 		offset = new THREE.Vector3(x, y , 0);
 
 		slats.push(new Slat(
-			width + .125, slatLength, thickness, currentAngle, offset, visibility, this.imageList
+			width + .125, slatLength, thickness, currentAngle, offset, this.imageList
 		));
 		i--;
 	}
