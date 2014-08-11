@@ -65,6 +65,18 @@ WebGLRenderer.prototype.init = function() {
 		repeatY: 8,
 	}));
 
+	var loader = new THREE.ColladaLoader();
+	loader.options.convertUpAxis = true;
+
+	var onDaeLoad = function (collada) {
+		var dae = collada.scene;
+		var skin = collada.skins[0];
+		dae.position.set(0, 0, -2); //x,z,y- if you think in blender dimensions ;)
+		dae.scale.set(1.0, 1.0, 1.0);
+		this.scene.add(dae);
+	}
+	loader.load('simple_figure.dae', onDaeLoad.bind(this));
+
 	this.setupGroup();	
 };
 
