@@ -1,5 +1,14 @@
 TODO
-- cleanup before recreating kicker, memory leaks are pretty bad right now.
+- look into oimo.js http://lo-th.github.io/Oimo.js/index.html
+- cleanup before recreating kicker, memory leaks are probably pretty bad right now.
+- think about how to add more kickers to the scene. that probably requires a refactoring of the object compositions. This would mean a different app altogether though.
+	app 	-> 	kicker 	->	kickermodel
+						->	representation -> renderer
+
+	app 	->	physics (world)
+			->	scene (three)
+			->	objects	-> [(mesh, body)]
+
 - create a helper that shows where lights are.
 - create a little inspector to pick objects out of a list and move/rotate them around.
 - when dropping the kicker in place, create a cloud of smoke with particles.

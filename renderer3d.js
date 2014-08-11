@@ -90,7 +90,7 @@ WebGLRenderer.prototype.initPhysics = function() {
 
 	// Kicker Box
 	var boxBody = Utils.createBoxBodyFromMesh(this.group, 50);
-	boxBody.position = new CANNON.Vec3(0, 2, 0);
+	boxBody.position = new CANNON.Vec3(0, 3, 0);
 	boxBody.velocity = new CANNON.Vec3(0, 0, 0);
 	boxBody.quaternion.setFromAxisAngle(
 	 	new CANNON.Vec3(0,.8,-.5), Math.PI / 180 * 35);
@@ -99,7 +99,7 @@ WebGLRenderer.prototype.initPhysics = function() {
 	world.add(boxBody);
 
 	// Materials
-	var friction = 0.0;
+	var friction = 0.2;
 	var restitution = .2;
 	var kickerGroundContact = new CANNON.ContactMaterial(
 		groundMat, boxMat, friction, restitution);

@@ -4,7 +4,7 @@ var config = {
 			'steps': 20,
 			'thickness': .03,
 			'extraLength': .1,
-			'minHeight': .01
+			'minHeight': .015
 		},
 		'slats': {
 			'defaultLength': .015,

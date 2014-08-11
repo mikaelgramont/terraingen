@@ -79,11 +79,7 @@ Utils.makeAvailableForDebug = function(k, v) {
 	window.debugInfo[k] = v;
 }
 
-Utils.createBoxBodyFromMesh = function(mesh, mass, alignBottom) {
-	if (typeof(alignBottom) == 'undefined') {
-		alignBottom = true;
-	}
-
+Utils.createBoxBodyFromMesh = function(mesh, mass) {
 	var helper = new THREE.BoundingBoxHelper(mesh, 0);
 	helper.update();
 	var x = Math.abs((helper.box.max.x - helper.box.min.x) / 2);
