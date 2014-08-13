@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<title>Simple terrain generation</title>
+		<style>
+			.cell {
+				display:inline-block;
+				width: 10px;
+				height: 10px;
+			}
+			.row {
+				width: 320px;
+				height: 10px;
+				margin:0;
+				padding:0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dumpHtml" style="width: 320px; height: 320px"></div>
+		<textarea id="dump" style="width: 800px; height: 600px"></textarea>
+		<script src="../three.js"></script>
+		<script src="heightmap.js"></script>
+	</body>
+</html>
+
+<!--
+	l1 = (xl, yl) = (0.5, 0.2)
+	p1 = (xp, yp)
+
+	direction of l1: dl = yl / xl
+	Applied to p1: yp = dl * xp +x0
+	x0 = yp - (yl / xl) * xp
+
+	l1 follows: y = (yl / xl) * x + x0
+
+
+
+-->
