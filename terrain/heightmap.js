@@ -1,22 +1,23 @@
 // (function() {
-	const SIZE = 32;
+	const SIZE =64;
 	var map = new Uint8Array(SIZE * SIZE);
 	initMap();
 	generateMap(map);
 	map = blurMap(map, parseFloat(document.getElementById('filter').value));
 	dumpMap(map);
-	dumpHtmlMap(map);
+	dumpCanvasMap(map);
 
 	document.getElementById('generate').addEventListener('click', function(e) {
 		initMap();
 		generateMap(map);
+		map = blurMap(map, parseFloat(document.getElementById('filter').value));
 		dumpMap(map);
-		dumpHtmlMap(map);
+		dumpCanvasMap(map);
 	});
 	document.getElementById('filter').addEventListener('change', function(e) {
 		var blurredMap = blurMap(map, parseFloat(e.target.value));
 		dumpMap(blurredMap);
-		dumpHtmlMap(blurredMap);
+		dumpCanvasMap(blurredMap);
 	});
 
 	function generateMap(map) {
@@ -149,23 +150,23 @@
 		document.getElementById('dump').value = out.join('');
 	}
 
-	function dumpHtmlMap(map) {
+	function dumpCanvasMap(map) {
 		var canvas = document.getElementById('heightMap');
 		var c = canvas.getContext('2d');
-		var blockSize = 10;
-		for (var x = 0; x < SIZE; x++) {
-			for (var z = 0; z < SIZE; z++) {
-				var color = map[z + x * SIZE];
-				var imageData = c.createImageData(SIZE * blockSize, SIZE * blockSize);
-				var data = imageData.data;
-				for (var i = 0; i < 4 * SIZE * blockSize * SIZE * blockSize; i+=4) {
-					data[i] = color;
-					data[i + 1] = color;
-					data[i + 2] = color;
-					data[i + 3] = 255;
-				}
-				c.putImageData(imageData, z * blockSize, x * blockSize);
+		var imageData = c.createImageData(SIZE, SIZE);
+		var data = imageData.data;
+		for (var z = 0; z < SIZE; z++) {
+			for (var x = 0; x < SIZE; x++) {
+				var mapIndex = x + z * SIZE;
+				var color = map[mapIndex];
+
+				var pixelIndex = mapIndex * 4;
+				data[pixelIndex] = color;		// r
+				data[pixelIndex + 1] = color;	// g
+				data[pixelIndex + 2] = color;	// b
+				data[pixelIndex + 3] = 255;		// a
 			}
 		}
+		c.putImageData(imageData, 0, 0);
 	}	
 // })();
