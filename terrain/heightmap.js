@@ -1,6 +1,13 @@
 // (function() {
-	const SIZE =64;
-	var map = new Uint8Array(SIZE * SIZE);
+	/**
+		TODO: create a function that takes a bunch of parameters to drive the fault
+		line generation, so the terrain creation becomes deterministic by passing
+		in a bunch of fault line vectors and a filter param.
+		Also needs to output the params output by the terrain generation.
+		That way this file can get included and actual 3d terrain can be generated.
+	*/
+	const SIZE = 64;
+	var map = new Float32Array(SIZE * SIZE);
 	initMap();
 	generateMap(map);
 	map = blurMap(map, parseFloat(document.getElementById('filter').value));
@@ -21,19 +28,29 @@
 	});
 
 	function generateMap(map) {
-		for (var i = 0; i < 32; i++) {
+		var faultLines = [];
+		// High start value makes for a low minimum ground level.
+		for (var i = 0; i < 20; i++) {
 			var p1 = pickRandomPoint();
 			var p2 = pickRandomPoint();
-			while (p1.x == p2.x && p1.z == p2.z) {
+			while (p1[0] == p2[0] && p1[1] == p2[1]) {
 				p2 = pickRandomPoint();
 			}
-			var faultDir = new THREE.Vector3();
-			faultDir.subVectors(p1, p2);
-			addFaultLine(map, p1, faultDir, i);		
+			var faultDir = [p1[0] - p2[0], p1[1] - p2[1]];
+			faultLines.push([p1, faultDir, .05]);
 		}
+		var faultLineParams = [];
+		faultLines.forEach(function(faultLine) {
+			faultLineParams.push(faultLine);
+			var p1 = new THREE.Vector3(faultLine[0][0], 0, faultLine[0][1]);
+			var faultDir = new THREE.Vector3(faultLine[1][0], 0, faultLine[1][1]);
+			var inc = faultLine[2];
+			applyFaultLine(map, p1, faultDir, inc);
+		});
+		document.getElementById('params').value = faultLineParams.join('\n');
 	}
 
-	function addFaultLine(map, p1, faultDir, inc) {
+	function applyFaultLine(map, p1, faultDir, inc) {
 		for (var x = 0; x < SIZE; x++) {
 			for (var z = 0; z < SIZE; z++) {
 				var currentDir = new THREE.Vector3(
@@ -50,7 +67,7 @@
 	}
 
 	function blurMap(map, filter) {
-		var map2 = new Uint8Array(map.length);
+		var map2 = new Float32Array(map.length);
 
 		for (var x = 0; x < SIZE; x++) {
 			for (var z = 0; z < SIZE; z++) {
@@ -119,11 +136,10 @@
 
 	// Returns a random vertex in the grid
 	function pickRandomPoint() {
-		return new THREE.Vector3(
+		return [
 			Math.round(Math.random() * SIZE),
-			0,
 			Math.round(Math.random() * SIZE)
-		);
+		];
 	}
 
 	function initMap() {
@@ -137,12 +153,6 @@
 		for (var x = 0; x < SIZE; x++) {
 			for (var z = 0; z < SIZE; z++) {
 				var str = map[z + x * SIZE];
-				if (str < 10) {
-					str = '0' + str;
-				}
-				if (str < 100) {
-					str = '0' + str;
-				}
 				out.push(str + ' '	);
 			}
 			out.push('\n');
@@ -158,7 +168,7 @@
 		for (var z = 0; z < SIZE; z++) {
 			for (var x = 0; x < SIZE; x++) {
 				var mapIndex = x + z * SIZE;
-				var color = map[mapIndex];
+				var color = map[mapIndex] * 255 | 0;
 
 				var pixelIndex = mapIndex * 4;
 				data[pixelIndex] = color;		// r
