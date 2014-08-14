@@ -1,16 +1,23 @@
 // (function() {
-	const SIZE = 16;
-	var map = new Uint8Array(SIZE * SIZE, 128);
+	const SIZE = 32;
+	var map = new Uint8Array(SIZE * SIZE);
 	initMap();
 	generateMap(map);
+	map = blurMap(map, parseFloat(document.getElementById('filter').value));
 	dumpMap(map);
 	dumpHtmlMap(map);
 
-	setTimeout(function() {
-		blurMap(map);
+	document.getElementById('generate').addEventListener('click', function(e) {
+		initMap();
+		generateMap(map);
 		dumpMap(map);
 		dumpHtmlMap(map);
-	}, 2000);
+	});
+	document.getElementById('filter').addEventListener('change', function(e) {
+		var blurredMap = blurMap(map, parseFloat(e.target.value));
+		dumpMap(blurredMap);
+		dumpHtmlMap(blurredMap);
+	});
 
 	function generateMap(map) {
 		for (var i = 0; i < 32; i++) {
@@ -41,29 +48,73 @@
 		}
 	}
 
-	function blurMap(map) {
-		filter = .25;
-		// for (var i = 0; i < SIZE; i++)
-		// 	blurDirection(map, i * SIZE, 1, SIZE, filter);
+	function blurMap(map, filter) {
+		var map2 = new Uint8Array(map.length);
 
-		// for (var i = 0; i < SIZE; i++)
-		// 	blurDirection(map, i * SIZE + SIZE - 1, -1, SIZE, filter);
-
-		for (var i = 0; i < SIZE; i++)
-			blurDirection(map, i, SIZE, SIZE, filter);
-
-		// for (var i = 0; i < SIZE; i++)
-			// blurDirection(map, SIZE * SIZE - (SIZE - i), -SIZE, SIZE * i, filter);
-	}
-
-	function blurDirection(map, start, step, count, filter) {
-		for (var i = 0; i < count - 1; i++) {
-			var current = start + step * i;
-			var next = current + step;
-			map[current] = (1 - filter) * map[current] + map[next] * filter;
+		for (var x = 0; x < SIZE; x++) {
+			for (var z = 0; z < SIZE; z++) {
+				var dividor;
+				var sum;
+				if (z == 0) {
+					if (x == 0) {
+						sum =
+							map[      z * SIZE + x + 1] +
+							map[(z + 1) * SIZE + x] + map[(z + 1) * SIZE + x + 1];
+						dividor = 4;
+					} else if (x == SIZE - 1) {
+						sum =
+							map[      z * SIZE + x] +
+							map[(z + 1) * SIZE + x - 1] + map[(z + 1) * SIZE + x];
+						dividor = 4;
+					} else {
+						sum =
+							map[      z * SIZE + x - 1] + map[      z * SIZE + x + 1] +
+							map[(z + 1) * SIZE + x - 1] + map[(z + 1) * SIZE + x] + map[(z + 1) * SIZE + x + 1];
+						dividor = 6;
+					}
+				} else if (z == SIZE - 1) {
+					if (x == 0) {
+						sum =
+							map[(z - 1) * SIZE + x] + map[(z - 1) * SIZE + x + 1] +
+							map[      z * SIZE + x + 1];
+						dividor = 4;
+					} else if (x == SIZE - 1) {
+						sum =
+							map[(z - 1) * SIZE + x - 1] + map[(z - 1) * SIZE + x] +
+							map[      z * SIZE + x - 1];
+						dividor = 4;
+					} else {
+						sum =
+							map[(z - 1) * SIZE + x - 1] + map[(z - 1) * SIZE + x] + map[(z - 1) * SIZE + x + 1] +
+							map[      z * SIZE + x - 1]   + map[      z * SIZE + x + 1];
+						dividor = 6;
+					}					
+				} else {
+					if (x == 0) {
+						sum = 
+							map[(z - 1) * SIZE + x] + map[(z - 1) * SIZE + x + 1] +
+							map[      z * SIZE + x + 1] +
+							map[(z + 1) * SIZE + x] + map[(z + 1) * SIZE + x + 1];
+						dividor = 6;
+					} else if (x == SIZE - 1) {
+						sum = 
+							map[(z - 1) * SIZE + x - 1] + map[(z - 1) * SIZE + x] +
+							map[      z * SIZE + x - 1] +
+							map[(z + 1) * SIZE + x - 1] + map[(z + 1) * SIZE + x];
+						dividor = 6;
+					} else {
+						sum =
+							map[(z - 1) * SIZE + x - 1] + map[(z - 1) * SIZE + x] + map[(z - 1) * SIZE + x + 1] +
+							map[      z * SIZE + x - 1] + map[      z * SIZE + x + 1] +
+							map[(z + 1) * SIZE + x - 1] + map[(z + 1) * SIZE + x] + map[(z + 1) * SIZE + x + 1];
+						dividor = 9;
+					}
+				}
+				map2[z * SIZE + x] = ((1 - filter) * map[z * SIZE + x] * dividor + filter * sum) / dividor;
+			}
 		}
+		return map2;	
 	}
-
 
 	// Returns a random vertex in the grid
 	function pickRandomPoint() {
@@ -99,15 +150,22 @@
 	}
 
 	function dumpHtmlMap(map) {
-		var out = [];
+		var canvas = document.getElementById('heightMap');
+		var c = canvas.getContext('2d');
+		var blockSize = 10;
 		for (var x = 0; x < SIZE; x++) {
-			out.push('<ul class="row">')
 			for (var z = 0; z < SIZE; z++) {
-				var color = map[z + x * SIZE] + 256 * map[z + x * SIZE] + 256 * 256 * map[z + x * SIZE];
-				out.push('<li class="cell" style="background-color:#' + color.toString(16) + ';"></li>')
+				var color = map[z + x * SIZE];
+				var imageData = c.createImageData(SIZE * blockSize, SIZE * blockSize);
+				var data = imageData.data;
+				for (var i = 0; i < 4 * SIZE * blockSize * SIZE * blockSize; i+=4) {
+					data[i] = color;
+					data[i + 1] = color;
+					data[i + 2] = color;
+					data[i + 3] = 255;
+				}
+				c.putImageData(imageData, z * blockSize, x * blockSize);
 			}
-			out.push('</ul>')
 		}
-		document.getElementById('dumpHtml').innerHTML = out.join('');
 	}	
 // })();

@@ -2,20 +2,14 @@
 	<head>
 		<title>Simple terrain generation</title>
 		<style>
-			.cell {
-				display:inline-block;
-				width: 10px;
-				height: 10px;
-			}
-			.row {
-				width: 320px;
-				height: 10px;
-				margin:0;
-				padding:0;
-			}
 		</style>
 	</head>
 	<body>
+		<div>
+			<input type="button" value="Generate" id="generate">
+			<input id="filter" class="" type="range" min="0" max="1" step="0.05" value="1">
+		</div>
+		<canvas id="heightMap" width="320" height="320"></canvas>
 		<div id="dumpHtml" style="width: 320px; height: 320px"></div>
 		<textarea id="dump" style="width: 800px; height: 600px"></textarea>
 		<script src="../three.js"></script>
