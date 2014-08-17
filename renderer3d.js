@@ -58,13 +58,29 @@ WebGLRenderer.prototype.init = function() {
 
 	this.scene.add(new THREE.AxisHelper(1));
 	this.scene.add(new THREE.GridHelper(100,2));
-	this.scene.add(new THREEx.GrassGround({
-		width: 40,
-		height: 40,
-		repeatX: 8,
-		repeatY: 8,
-	}));
+	// this.scene.add(new THREEx.GrassGround({
+	// 	width: 40,
+	// 	height: 40,
+	// 	repeatX: 8,
+	// 	repeatY: 8,
+	// }));
 
+	// HEIGHTMAP
+	var map = new HeightMap(64);
+	map.applyFaultLineParams(
+		map.generateFaultLineParams()
+	);
+	map.blur(.5);
+	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(20, 10, 20));
+	var material = map.getMaterial();
+	var plane = new THREE.Mesh(planeGeometry, material);
+	// plane.rotateX(Math.PI/2);
+	Utils.makeAvailableForDebug('map', plane);
+	this.scene.add(plane);
+	// map.dumpToText(document.getElementById('dump'));
+	// map.dumpToCanvas(document.getElementById('heightMap'));
+
+	// CHARACTER
 	var loader = new THREE.ColladaLoader();
 	loader.options.convertUpAxis = true;
 
