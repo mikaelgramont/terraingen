@@ -167,10 +167,32 @@ HeightMap.prototype.createMeshGeometry = function(scaleVector) {
 			);
 		}
 	}
-	// TODO: create a plane with the x and z dimensions from the vector.
-	// displace all vertices by the corresponding heightmap value * scaleVector.y
+
+	// Offset all vertices so that the mesh is centered and flush with minY.
+	geometry.computeBoundingBox();
+	var boundingBox = geometry.boundingBox.clone();
+	var xRange = boundingBox.max.x - boundingBox.min.x;
+	var zRange = boundingBox.max.z - boundingBox.min.z;
+	var offset = new THREE.Vector3(
+		xRange / 2,
+		0,
+		zRange / 2);
+	geometry.vertices.forEach(function(vertex) {
+		vertex.sub(offset);
+	});
+
 	return geometry;
 }
+
+HeightMap.prototype.flattenCenterArea = function(size) {
+	var startIndex = this.size_ / 2 - size / 2;
+	var endIndex = this.size_ / 2 + size / 2;
+	for (var x = startIndex; x < endIndex; x++) {
+		for (var z = startIndex; z < endIndex; z++) {
+			this.map_[x + z * this.size_] = 0;
+		}
+	}
+};
 
 HeightMap.prototype.getMaterial = function() {
 	var repeatX	= 1;

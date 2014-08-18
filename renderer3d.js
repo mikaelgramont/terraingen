@@ -70,15 +70,14 @@ WebGLRenderer.prototype.init = function() {
 	map.applyFaultLineParams(
 		map.generateFaultLineParams()
 	);
-	map.blur(.5);
-	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(20, 10, 20));
+	map.flattenCenterArea(12);
+	map.blur(1);
+	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(50, 10, 50));
 	var material = map.getMaterial();
 	var plane = new THREE.Mesh(planeGeometry, material);
-	// plane.rotateX(Math.PI/2);
+	// plane.position = new THREE.Vector3(-10, -10, 0);
 	Utils.makeAvailableForDebug('map', plane);
 	this.scene.add(plane);
-	// map.dumpToText(document.getElementById('dump'));
-	// map.dumpToCanvas(document.getElementById('heightMap'));
 
 	// CHARACTER
 	var loader = new THREE.ColladaLoader();
