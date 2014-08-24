@@ -33,7 +33,7 @@ WebGLRenderer.prototype.stop = function() {
 
 WebGLRenderer.prototype.init = function() {
 	var aspectRatio = this.canvasEl.clientWidth / this.canvasEl.clientHeight;
-	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 100);
+	this.camera = new THREE.PerspectiveCamera(50, aspectRatio, 1, 1000);
 	this.camera.position.x = 3;
 	this.camera.position.y = 3;
 	this.camera.position.z = 8;
@@ -67,15 +67,18 @@ WebGLRenderer.prototype.init = function() {
 
 	// HEIGHTMAP
 	var map = new HeightMap(64);
+	var pow = 0.69314;
+	// pow = 3;
+	map.applyBell(pow, 2);
 	map.applyFaultLineParams(
 		map.generateFaultLineParams()
 	);
-	map.flattenCenterArea(12);
+	map.shiftDown();
+	map.flattenCenterArea(6);
 	map.blur(1);
-	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(50, 10, 50));
+	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(180, 20, 180));
 	var material = map.getMaterial();
 	var plane = new THREE.Mesh(planeGeometry, material);
-	// plane.position = new THREE.Vector3(-10, -10, 0);
 	Utils.makeAvailableForDebug('map', plane);
 	this.scene.add(plane);
 

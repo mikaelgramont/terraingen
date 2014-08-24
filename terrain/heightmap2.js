@@ -1,5 +1,5 @@
 var HeightMap = function(size) {
-	this.faultLineDisplacement_ = .05;
+	this.faultLineDisplacement_ = .1;
 	this.size_ = size;
 	this.map_ = new Float32Array(this.size_ * this.size_);
 	for (var i = 0, l = this.map_.length; i < l; i++) {
@@ -153,6 +153,30 @@ HeightMap.prototype.dumpToCanvas = function(canvasEl) {
 	c.putImageData(imageData, 0, 0);
 };
 
+HeightMap.prototype.applyBell = function(pow, scaleY) {
+	var bell = function(x) {
+		return Math.exp(pow * x) - 1;
+	}
+	for (var x = 0; x < this.size_; x++) {
+		for (var z = 0; z < this.size_; z++) {
+			var offsetX = x - this.size_ / 2;
+			var offsetZ = z - this.size_ / 2;
+			var dist = Math.sqrt(offsetX * offsetX + offsetZ * offsetZ	);
+			var index = x + z * this.size_;
+			this.map_[index] = bell(dist / this.size_) * scaleY;
+		}
+	}
+};
+
+HeightMap.prototype.shiftDown = function() {
+	var min = Math.min.apply(null, this.map_);
+	for (var x = 0; x < this.size_; x++) {
+		for (var z = 0; z < this.size_; z++) {
+			this.map_[x + z * this.size_] -= min;
+		}
+	}
+};
+
 HeightMap.prototype.createMeshGeometry = function(scaleVector) {
 	var geometry = new THREE.PlaneGeometry(1.0, 1.0, this.size_ - 1, this.size_ - 1);
 	for (var x = 0; x < this.size_; x++) {
@@ -180,7 +204,6 @@ HeightMap.prototype.createMeshGeometry = function(scaleVector) {
 	geometry.vertices.forEach(function(vertex) {
 		vertex.sub(offset);
 	});
-
 	return geometry;
 }
 
