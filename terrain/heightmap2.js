@@ -182,7 +182,7 @@ HeightMap.prototype.createMeshGeometry = function(scaleVector) {
 	for (var x = 0; x < this.size_; x++) {
 		for (var z = 0; z < this.size_; z++) {
 			var vertexX = x / this.size_ * scaleVector.x;
-			var vertexY = this.map_[x + z * this.size_] * scaleVector.y;
+			var vertexY = this.map_[x + z * this.size_];
 			var vertexZ = z / this.size_ * scaleVector.z;
 			geometry.vertices[x + z * this.size_] = new THREE.Vector3(
 				vertexX,
@@ -215,6 +215,19 @@ HeightMap.prototype.flattenCenterArea = function(size) {
 			this.map_[x + z * this.size_] = 0;
 		}
 	}
+};
+
+HeightMap.prototype.getProceduralMaterial = function(vertexShaderEl, fragmentShaderEl) {
+    var material = new THREE.ShaderMaterial({
+        uniforms: {
+            texture_grass: { type: "t", value: THREE.ImageUtils.loadTexture('./images/terrain_grass_256.jpg') },
+            texture_rock: { type: "t", value: THREE.ImageUtils.loadTexture('./images/terrain_rock_256.jpg') },
+        },
+        vertexShader: vertexShaderEl.textContent,
+        fragmentShader: fragmentShaderEl.textContent
+    });
+
+    return material;
 };
 
 HeightMap.prototype.getMaterial = function() {

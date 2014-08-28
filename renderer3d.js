@@ -67,20 +67,22 @@ WebGLRenderer.prototype.init = function() {
 
 	// HEIGHTMAP
 	var map = new HeightMap(64);
-	var pow = 0.69314;
-	// pow = 3;
-	map.applyBell(pow, 2);
-	map.applyFaultLineParams(
-		map.generateFaultLineParams()
-	);
+	map.applyBell(0.69314, 2);
+	map.applyFaultLineParams(map.generateFaultLineParams());
 	map.shiftDown();
 	map.flattenCenterArea(6);
-	map.blur(1);
-	var planeGeometry = map.createMeshGeometry(new THREE.Vector3(180, 20, 180));
+	map.blur(.5);
+	var mapScale = new THREE.Vector3(180, 20, 180);
+	var mapGeometry = map.createMeshGeometry(mapScale);
+	var proceduralMaterial = map.getProceduralMaterial(
+		document.getElementById('procedural-vertex-shader'),
+		document.getElementById('procedural-fragment-shader')
+	);
 	var material = map.getMaterial();
-	var plane = new THREE.Mesh(planeGeometry, material);
-	Utils.makeAvailableForDebug('map', plane);
-	this.scene.add(plane);
+	var heightMap = new THREE.Mesh(mapGeometry, proceduralMaterial);
+	heightMap.scale.y = mapScale.y;
+	Utils.makeAvailableForDebug('HeightMap', heightMap);
+	this.scene.add(heightMap);
 
 	// CHARACTER
 	var loader = new THREE.ColladaLoader();
