@@ -69,13 +69,15 @@
     <script id="procedural-fragment-shader" type="x-shader/x-fragment">
       uniform sampler2D texture_grass;
       uniform sampler2D texture_rock;
+      uniform float grass_repeat;
+      uniform float rock_repeat;
       varying vec2 vUv;
       varying vec3 vPosition;
       void main() {
           // Texture loading
-          vec4 diffuseGrass = texture2D(texture_grass, vUv);
+          vec4 diffuseGrass = texture2D(texture_grass, vUv * grass_repeat);
           vec4 diffuseSand = vec4(.8, .8, .7, 1.0);
-          vec4 diffuseRock = texture2D(texture_rock, vUv);
+          vec4 diffuseRock = texture2D(texture_rock, vUv * rock_repeat);
           vec4 diffuseSnow = vec4(.8, .9, 1.0, 1.0);
           vec4 color = diffuseRock; // grass base
           // add sand

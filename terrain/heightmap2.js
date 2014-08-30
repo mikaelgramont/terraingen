@@ -218,10 +218,34 @@ HeightMap.prototype.flattenCenterArea = function(size) {
 };
 
 HeightMap.prototype.getProceduralMaterial = function(vertexShaderEl, fragmentShaderEl) {
+	var repeatX	= 4;
+	var repeatY	= 4;
+
+	var grass = THREE.ImageUtils.loadTexture('./images/terrain_grass_256.jpg');
+	grass.wrapS = THREE.RepeatWrapping;
+	grass.wrapT = THREE.RepeatWrapping;
+	var rock = THREE.ImageUtils.loadTexture('./images/terrain_rock_256.jpg');
+	rock.wrapS = THREE.RepeatWrapping;
+	rock.wrapT = THREE.RepeatWrapping;
+
     var material = new THREE.ShaderMaterial({
         uniforms: {
-            texture_grass: { type: "t", value: THREE.ImageUtils.loadTexture('./images/terrain_grass_256.jpg') },
-            texture_rock: { type: "t", value: THREE.ImageUtils.loadTexture('./images/terrain_rock_256.jpg') },
+            texture_grass: {
+            	type: "t",
+            	value: grass
+            },
+            grass_repeat: {
+            	type: "f",
+            	value: 8.0
+            },
+            texture_rock: {
+            	type: "t",
+            	value: rock
+            },
+            rock_repeat: {
+            	type: "f",
+            	value: 4.0
+            }
         },
         vertexShader: vertexShaderEl.textContent,
         fragmentShader: fragmentShaderEl.textContent
