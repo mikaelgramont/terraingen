@@ -38,3 +38,8 @@ body {
   margin-right: 30px;
 }
 
+#leap-output {
+  width: 200px;
+  height: 150px;
+}
+

@@ -135,6 +135,8 @@ HeightMap.prototype.dumpToText = function(textEl) {
 };
 
 HeightMap.prototype.dumpToCanvas = function(canvasEl) {
+	canvasEl.setAttribute('width', this.size_);
+	canvasEl.setAttribute('height', this.size_);
 	var c = canvasEl.getContext('2d');
 	var imageData = c.createImageData(this.size_, this.size_);
 	var data = imageData.data;
@@ -207,23 +209,60 @@ HeightMap.prototype.createMeshGeometry = function(scaleVector) {
 	return geometry;
 }
 
-HeightMap.prototype.flattenCenterArea = function(size) {
+HeightMap.prototype.flattenCenterArea = function(size, level) {
+	if (typeof(level) == 'undefined') {
+		level = 0;
+	}
 	var startIndex = this.size_ / 2 - size / 2;
 	var endIndex = this.size_ / 2 + size / 2;
 	for (var x = startIndex; x < endIndex; x++) {
 		for (var z = startIndex; z < endIndex; z++) {
-			this.map_[x + z * this.size_] = 0;
+			var offsetX = x - this.size_ / 2;
+			var offsetZ = z - this.size_ / 2;
+			var dist = Math.sqrt(offsetX * offsetX + offsetZ * offsetZ);
+			if (dist < size) {
+		    	this.map_[x + z * this.size_] = level;
+		    }
 		}
 	}
 };
 
-HeightMap.prototype.getProceduralMaterial = function(vertexShaderEl, fragmentShaderEl) {
-	var repeatX	= 4;
-	var repeatY	= 4;
+/**
+ * center is a 2d vector representing a vertex in the map.
+ * radius is the size of the circle to flatten.
+ * level is the target height of the plateau
+ */
+HeightMap.prototype.plateau = function(center, radius, level) {
+	if (typeof(level) == 'undefined') {
+		level = 0;
+	}
+	var startIndexX = center.x - radius;
+	var endIndexX = center.x + radius;
+	var startIndexZ = center.z - radius;
+	var endIndexZ = center.z + radius;
+	for (var z = startIndexZ; z < endIndexZ; z++) {
+		for (var x = startIndexX; x < endIndexX; x++) {
+			var distX = x - center.x;
+			var distZ = z - center.z;
+			var dist = Math.sqrt(distX * distX + distZ * distZ);
+			var index = x + z * this.size_;
+			if (dist <= radius) {
+		    	this.map_[index] = level;
+		    }
+		}
+	}
+};
 
+HeightMap.prototype.slope = function(from, to, width) {
+
+};
+
+
+HeightMap.prototype.getProceduralMaterial = function(vertexShaderEl, fragmentShaderEl) {
 	var grass = THREE.ImageUtils.loadTexture('./images/terrain_grass_256.jpg');
 	grass.wrapS = THREE.RepeatWrapping;
 	grass.wrapT = THREE.RepeatWrapping;
+
 	var rock = THREE.ImageUtils.loadTexture('./images/terrain_rock_256.jpg');
 	rock.wrapS = THREE.RepeatWrapping;
 	rock.wrapT = THREE.RepeatWrapping;
@@ -244,7 +283,7 @@ HeightMap.prototype.getProceduralMaterial = function(vertexShaderEl, fragmentSha
             },
             rock_repeat: {
             	type: "f",
-            	value: 4.0
+            	value: 2.0
             }
         },
         vertexShader: vertexShaderEl.textContent,

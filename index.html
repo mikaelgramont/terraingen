@@ -49,13 +49,14 @@
     </div>
 
 
-    <div class="preload-container">
-
-    </div>
+    <div class="preload-container"></div>
 
     <canvas id="kicker-webgl" class="draw-area" width="800" height="600"></canvas>
 
     <canvas id="kicker-canvas" class="draw-area" width="400" height="300"></canvas>
+    <canvas id="map-canvas" class="draw-area" width="128" height="128"></canvas>
+
+    <textarea id="leap-output"></textarea>
 
     <script id="procedural-vertex-shader" type="x-shader/x-vertex">
       varying vec2 vUv;
@@ -76,28 +77,14 @@
       void main() {
           // Texture loading
           vec4 diffuseGrass = texture2D(texture_grass, vUv * grass_repeat);
-          vec4 diffuseSand = vec4(.8, .8, .7, 1.0);
           vec4 diffuseRock = texture2D(texture_rock, vUv * rock_repeat);
-          vec4 diffuseSnow = vec4(.8, .9, 1.0, 1.0);
           vec4 color = diffuseRock; // grass base
-          // add sand
-          // color = mix(
-          //     diffuseSand,
-          //     color,
-          //     min(abs(.0 - vPosition.y) / .03, 1.0) // Start at .0 for .03 units
-          // );
           // add rock
           color = mix(
               diffuseGrass,
               color,
-              min(abs(.0 - vPosition.y) / .6, 1.0) // Start at .6 for .6 units
+              min(abs(.2 - vPosition.y) / .5, 1.0) // Start at .6 for .6 units
           );
-          // add snow
-          // color = mix(
-          //     diffuseSnow,
-          //     color,
-          //     min(abs(1.3 - vPosition.y) / .5, 1.0) // Start at 1.3 for .5 units
-          // );
           gl_FragColor = color;
       }
     </script>
@@ -120,13 +107,14 @@
     <script src="representation2d.js"></script>
     <script src="representation3d.js"></script>
     <script src="three.js"></script>
-    <script src="threex.grassground.js"></script>
     <script src="THREEx.GeometryUtils.js"></script>
     <script src="orbitcontrols.js"></script>
     <script src="utils.js"></script>
 
     <script src="terrain/heightmap2.js"></script>
     <script src="ColladaLoader.js"></script>
+
+    <!--<script src="//js.leapmotion.com/leap-0.6.0-beta2.js"></script>-->
 
     <script>
       (function() {
